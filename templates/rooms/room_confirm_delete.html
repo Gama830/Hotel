@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 50px auto; padding: 0;">
+    <!-- Header with red background for delete action -->
+    <div style="background-color: #dc3545; color: white; padding: 15px 20px; margin: 0; border-radius: 8px 8px 0 0;">
+        <h3 style="margin: 0; font-size: 18px;">⚠️ Delete Room</h3>
+    </div>
+
+    <!-- Content container -->
+    <div style="background-color: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        
+        <div style="margin-bottom: 25px;">
+            <p style="font-size: 16px; margin-bottom: 15px;">Are you sure you want to delete this room?</p>
+            
+            <!-- Room details card -->
+            <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 20px; margin: 20px 0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <strong>Room Number:</strong> {{ object.room_number }}
+                    </div>
+                    <div>
+                        <strong>Floor:</strong> {{ object.floor }}
+                    </div>
+                    <div>
+                        <strong>Bed Type:</strong> {{ object.get_bed_type_display }}
+                    </div>
+                    <div>
+                        <strong>Status:</strong> {{ object.get_status_display }}
+                    </div>
+                    {% if object.room_type %}
+                    <div>
+                        <strong>Room Type:</strong> {{ object.room_type.name }}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <strong>Rate:</strong> 
+                        {% if object.rate_default %}
+                            ₹{{ object.rate_default }}
+                        {% else %}
+                            ₹{{ object.tariff }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 20px 0;">
+                <strong>Warning:</strong> This action cannot be undone. All data associated with this room will be permanently deleted.
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="text-align: left;">
+                <button type="submit"
+                    style="padding: 12px 25px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; font-size: 14px; font-weight: 500;">
+                    Yes, Delete Room
+                </button>
+                <a href="{% url 'room-list' %}"
+                    style="padding: 12px 25px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500; display: inline-block;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

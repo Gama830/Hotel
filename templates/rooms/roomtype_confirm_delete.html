@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 50px auto; padding: 0;">
+    <!-- Header with red background -->
+    <div style="background-color: #dc3545; color: white; padding: 15px 20px; margin: 0; border-radius: 8px 8px 0 0;">
+        <h3 style="margin: 0; font-size: 18px;">
+            ⚠️ Delete Room Type
+        </h3>
+    </div>
+
+    <!-- Content container -->
+    <div style="background-color: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        
+        <div style="margin-bottom: 20px;">
+            <p style="font-size: 16px; margin-bottom: 15px;">
+                Are you sure you want to delete the room type <strong>"{{ object.name }}"</strong>?
+            </p>
+            
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                <strong>Room Type Details:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li><strong>Name:</strong> {{ object.name }}</li>
+                    <li><strong>Bed Type:</strong> {{ object.get_bed_type_display }}</li>
+                    <li><strong>Default Rate:</strong> ₹{{ object.price_per_night }}</li>
+                    <li><strong>Max Occupancy:</strong> {{ object.capacity }} person{{ object.capacity|pluralize }}</li>
+                    {% if object.description %}
+                    <li><strong>Description:</strong> {{ object.description|truncatewords:15 }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                <strong>Warning:</strong> This action cannot be undone. Any rooms currently assigned to this room type will need to be reassigned.
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="text-align: left;">
+                <button type="submit"
+                    style="padding: 12px 30px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; font-size: 14px; font-weight: 500;">
+                    Yes, Delete Room Type
+                </button>
+                <a href="{% url 'roomtype-list' %}"
+                    style="padding: 12px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500; display: inline-block;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

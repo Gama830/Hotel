@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 20px auto; padding: 0;">
+    <!-- Header with purple background -->
+    <div style="background-color: #6f42c1; color: white; padding: 15px 20px; margin: 0; border-radius: 8px 8px 0 0;">
+        <h3 style="margin: 0; font-size: 18px;">
+            {% if is_edit %}
+                Amenities Master - Edit Amenity
+            {% else %}
+                Amenities Master - Create Amenity
+            {% endif %}
+        </h3>
+    </div>
+
+    <!-- Form container -->
+    <div style="background-color: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        
+        <!-- Display form errors -->
+        {% if form.errors %}
+        <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+            <strong>Please correct the following errors:</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- First Row - Name and Description -->
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                        Amenity Name <span style="color: #dc3545;">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.help_text %}
+                        <small style="color: #666; font-size: 12px;">{{ form.name.help_text }}</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Second Row - Description -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Description</label>
+                {{ form.description }}
+                {% if form.description.help_text %}
+                    <small style="color: #666; font-size: 12px;">{{ form.description.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Third Row - Applicable Room Types -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: 500;">Applicable Room Types</label>
+                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background-color: #f8f9fa;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        {% for choice in form.applicable_room_types %}
+                            <div style="display: flex; align-items: center;">
+                                {{ choice.tag }}
+                                <span style="margin-left: 8px;">{{ choice.choice_label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if not form.applicable_room_types %}
+                        <p style="color: #666; margin: 0; font-style: italic;">No room types available. Please create room types first.</p>
+                    {% endif %}
+                </div>
+                {% if form.applicable_room_types.help_text %}
+                    <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">{{ form.applicable_room_types.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Fourth Row - Quantity Limit -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Quantity Limit</label>
+                {{ form.quantity_limit }}
+                {% if form.quantity_limit.help_text %}
+                    <small style="color: #666; font-size: 12px;">{{ form.quantity_limit.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Buttons -->
+            <div style="text-align: left; margin-top: 30px;">
+                <button type="submit"
+                    style="padding: 12px 30px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; font-size: 14px; font-weight: 500;">
+                    {% if is_edit %}Update Amenity{% else %}Create Amenity{% endif %}
+                </button>
+                <a href="{% url 'amenity-list' %}"
+                    style="padding: 12px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+
+    input[type="checkbox"] {
+        margin-right: 8px;
+        transform: scale(1.2);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+</style>
+{% endblock %}

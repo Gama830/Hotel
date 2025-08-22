@@ -1,0 +1,254 @@
+{% extends 'base.html' %} {% block content %}
+<div style="max-width: 1200px; margin: 20px auto; padding: 20px">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    "
+  >
+    <h2>Room Master List</h2>
+    <a
+      href="{% url 'room-create' %}"
+      style="
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+      "
+      >Add New Room</a
+    >
+  </div>
+
+  {% if messages %} {% for message in messages %}
+  <div
+    style="
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      color: #155724;
+    "
+  >
+    {{ message }}
+  </div>
+  {% endfor %} {% endif %}
+
+  <div
+    style="
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    "
+  >
+    <table style="width: 100%; border-collapse: collapse">
+      <thead style="background-color: #6f42c1; color: white">
+        <tr>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Room ID/Number
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Room Type
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Floor
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Bed Type
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Max Occupancy
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Status
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            View
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Rate (Default)
+          </th>
+          <th
+            style="
+              padding: 15px;
+              text-align: left;
+              border-bottom: 1px solid #ddd;
+            "
+          >
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for room in rooms %}
+        <tr style="border-bottom: 1px solid #eee">
+          <td style="padding: 15px">{{ room.room_number }}</td>
+          <td style="padding: 15px">
+            {% if room.room_type %}
+              {{ room.room_type.name }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td style="padding: 15px">{{ room.floor }}</td>
+          <td style="padding: 15px">
+            {% if room.bed_type %}
+              {{ room.get_bed_type_display }}
+            {% else %}
+              {% if room.single_bed %}Single {% endif %}
+              {% if room.double_bed %}Double {% endif %}
+              {% if room.extra_bed %}Extra {% endif %}
+            {% endif %}
+          </td>
+          <td style="padding: 15px">
+            {% if room.max_occupancy %}
+              {{ room.max_occupancy }}
+            {% else %}
+              {{ room.allow_pax }}
+            {% endif %}
+          </td>
+          <td style="padding: 15px">
+            {% if room.status == 'AVAILABLE' %}
+            <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; background-color: #d4edda; color: #155724;">
+              {{ room.get_status_display }}
+            </span>
+            {% elif room.status == 'OCCUPIED' %}
+            <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; background-color: #f8d7da; color: #721c24;">
+              {{ room.get_status_display }}
+            </span>
+            {% else %}
+            <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; background-color: #fff3cd; color: #856404;">
+              {{ room.get_status_display }}
+            </span>
+            {% endif %}
+          </td>
+          <td style="padding: 15px">
+            {% if room.view %}
+              {{ room.get_view_display }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td style="padding: 15px">
+            {% if room.rate_default %}
+              ₹{{ room.rate_default }}
+            {% else %}
+              ₹{{ room.tariff }}
+            {% endif %}
+          </td>
+          <td style="padding: 15px">
+            <a
+              href="{% url 'room-edit' room.pk %}"
+              style="color: #007bff; text-decoration: none; margin-right: 10px; padding: 4px 8px; border: 1px solid #007bff; border-radius: 3px; font-size: 12px;"
+              >Edit</a
+            >
+            <a 
+              href="{% url 'room-delete' room.pk %}" 
+              style="color: #dc3545; text-decoration: none; padding: 4px 8px; border: 1px solid #dc3545; border-radius: 3px; font-size: 12px;"
+              onclick="return confirm('Are you sure you want to delete Room {{ room.room_number }}?')"
+              >Delete</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td
+            colspan="9"
+            style="padding: 30px; text-align: center; color: #666"
+          >
+            No rooms found.
+            <a href="{% url 'room-create' %}">Create your first room</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div style="margin-top: 20px; text-align: center">
+    <span>
+      {% if page_obj.has_previous %}
+      <a href="?page=1" style="margin: 0 5px; text-decoration: none"
+        >&laquo; first</a
+      >
+      <a
+        href="?page={{ page_obj.previous_page_number }}"
+        style="margin: 0 5px; text-decoration: none"
+        >previous</a
+      >
+      {% endif %}
+
+      <span style="margin: 0 10px">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+      <a
+        href="?page={{ page_obj.next_page_number }}"
+        style="margin: 0 5px; text-decoration: none"
+        >next</a
+      >
+      <a
+        href="?page={{ page_obj.paginator.num_pages }}"
+        style="margin: 0 5px; text-decoration: none"
+        >last &raquo;</a
+      >
+      {% endif %}
+    </span>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

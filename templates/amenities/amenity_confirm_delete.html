@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 20px auto; padding: 0;">
+    <!-- Header with red background -->
+    <div style="background-color: #dc3545; color: white; padding: 15px 20px; margin: 0; border-radius: 8px 8px 0 0;">
+        <h3 style="margin: 0; font-size: 18px;">
+            ⚠️ Confirm Delete - Amenity
+        </h3>
+    </div>
+
+    <!-- Content container -->
+    <div style="background-color: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        
+        <!-- Warning message -->
+        <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+            <strong>⚠️ Warning!</strong> This action cannot be undone.
+        </div>
+        
+        <p style="font-size: 16px; margin-bottom: 20px;">
+            Are you sure you want to delete the amenity <strong>"{{ object.name }}"</strong>?
+        </p>
+        
+        <!-- Amenity details -->
+        <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
+            {% if object.description %}
+                <div style="margin-bottom: 10px;">
+                    <strong>Description:</strong> {{ object.description }}
+                </div>
+            {% endif %}
+            
+            {% if object.applicable_room_types.all %}
+                <div style="margin-bottom: 10px;">
+                    <strong>Applicable Room Types:</strong>
+                    {% for room_type in object.applicable_room_types.all %}
+                        <span style="padding: 2px 6px; border-radius: 3px; font-size: 11px; background-color: #e3f2fd; color: #1976d2; margin-right: 4px; display: inline-block;">
+                            {{ room_type.name }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if object.quantity_limit %}
+                <div>
+                    <strong>Quantity Limit:</strong> {{ object.quantity_limit }}
+                </div>
+            {% endif %}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="text-align: left;">
+                <button type="submit"
+                    style="padding: 12px 30px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; font-size: 14px; font-weight: 500;">
+                    🗑️ Yes, Delete Amenity
+                </button>
+                <a href="{% url 'amenity-list' %}"
+                    style="padding: 12px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 500; display: inline-block;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

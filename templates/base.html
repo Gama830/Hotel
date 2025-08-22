@@ -1,0 +1,314 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotel Management System - AAtithya</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}" />
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon.ico' %}" />
+
+  <!-- Meta tags -->
+  <meta name="description"
+    content="AAtithya Hotel Management System - Comprehensive hotel room and guest management solution" />
+  <meta name="keywords" content="hotel, management, rooms, booking, AAtithya" />
+  <meta name="author" content="AAtithya" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      padding-left: 280px;
+      /* Space for left sidebar */
+    }
+
+    .left-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(135deg, #66ea87 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .brand-name {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 15px;
+      background: rgb(242, 5, 5);
+      border-radius: 10px;
+      letter-spacing: 2px;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 15px;
+    }
+
+    .nav-link {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown-toggle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .nav-dropdown-arrow {
+      transition: transform 0.3s ease;
+      font-size: 12px;
+    }
+
+    .nav-dropdown.open .nav-dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .nav-dropdown-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+      margin-top: 5px;
+      border-radius: 5px;
+    }
+
+    .nav-dropdown.open .nav-dropdown-menu {
+      max-height: 300px;
+    }
+
+    .nav-dropdown-item {
+      padding: 10px 15px;
+      margin: 2px 0;
+    }
+
+    .nav-dropdown-item a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      display: block;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-dropdown-item a:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    .nav-footer {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding-left: 0;
+      }
+
+      .left-navbar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .left-navbar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .mobile-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="main-content">
+      <header></header>
+
+      <main>{% block content %} {% endblock %}</main>
+
+      <footer></footer>
+    </div>
+
+    <nav class="left-navbar" id="leftNavbar">
+      <div class="brand-name">AAtithya</div>
+
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="{% url 'room-list' %}" class="nav-link">🏠 Dashboard</a>
+        </li>
+        <!-- Room Master Dropdown -->
+        <li class="nav-item nav-dropdown" id="roomMasterDropdown">
+          <div class="nav-link nav-dropdown-toggle" onclick="toggleDropdown('roomMasterDropdown')">
+            <span>🏨 Room Master</span>
+            <span class="nav-dropdown-arrow">▼</span>
+          </div>
+          <div class="nav-dropdown-menu">
+            <div class="nav-dropdown-item">
+              <a href="{% url 'room-list' %}">🏨 Room List</a>
+            </div>
+            <div class="nav-dropdown-item">
+              <a href="{% url 'roomtype-list' %}">🏛️ Room Types</a>
+            </div>
+          </div>
+        </li>
+
+        <!-- Direct Amenities Link -->
+        <li class="nav-item">
+          <a href="{% url 'amenity-list' %}" class="nav-link">🛎️ Amenities</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">� Relservations</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">� Guests</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">💰 Billing</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">📊 Reports</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">⚙️ Settings</a>
+        </li>
+      </ul>
+
+      <div class="nav-footer">© 2025 AAtithya Hotel Management</div>
+    </nav>
+
+    <button class="mobile-toggle" onclick="toggleMobileNav()" style="display: none">
+      ☰
+    </button>
+  </div>
+
+  <script>
+    function toggleMobileNav() {
+      const navbar = document.getElementById("leftNavbar");
+      navbar.classList.toggle("mobile-open");
+    }
+
+    // Show mobile toggle on small screens
+    function checkScreenSize() {
+      const mobileToggle = document.querySelector(".mobile-toggle");
+      if (window.innerWidth <= 768) {
+        mobileToggle.style.display = "block";
+      } else {
+        mobileToggle.style.display = "none";
+        document.getElementById("leftNavbar").classList.remove("mobile-open");
+      }
+    }
+
+    window.addEventListener("resize", checkScreenSize);
+    window.addEventListener("load", checkScreenSize);
+
+    // Close mobile nav when clicking outside
+    document.addEventListener("click", function (event) {
+      const navbar = document.getElementById("leftNavbar");
+      const toggle = document.querySelector(".mobile-toggle");
+
+      if (
+        window.innerWidth <= 768 &&
+        !navbar.contains(event.target) &&
+        !toggle.contains(event.target)
+      ) {
+        navbar.classList.remove("mobile-open");
+      }
+    });
+
+    // Dropdown functionality
+    function toggleDropdown(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      const allDropdowns = document.querySelectorAll('.nav-dropdown');
+
+      // Close all other dropdowns
+      allDropdowns.forEach(dd => {
+        if (dd.id !== dropdownId) {
+          dd.classList.remove('open');
+        }
+      });
+
+      // Toggle current dropdown
+      dropdown.classList.toggle('open');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function (event) {
+      const dropdowns = document.querySelectorAll('.nav-dropdown');
+      const clickedInsideDropdown = event.target.closest('.nav-dropdown');
+
+      if (!clickedInsideDropdown) {
+        dropdowns.forEach(dropdown => {
+          dropdown.classList.remove('open');
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
