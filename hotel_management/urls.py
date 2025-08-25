@@ -21,5 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('rooms/', include('rooms.urls')),
     path('amenities/', include('amenities.urls')),
+    path('guests/', include('guest.urls')),
+    path('bookings/', include('booking.urls')),
     path('', include('rooms.urls')),  # Default to rooms for now
 ]

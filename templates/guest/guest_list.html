@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #333; margin: 0;">Guest Management</h1>
+        <a href="{% url 'guest-create' %}" 
+           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+            ➕ Add New Guest
+        </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div style="margin-bottom: 20px;">
+        <form method="GET" style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" name="search" value="{{ search_query }}" 
+                   placeholder="Search guests by name, email, phone, or member ID..."
+                   style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+            <button type="submit" 
+                    style="background: #667eea; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer;">
+                🔍 Search
+            </button>
+            {% if search_query %}
+            <a href="{% url 'guest-list' %}" 
+               style="background: #6c757d; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px;">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div style="margin-bottom: 20px; color: #666;">
+        {% if search_query %}
+            Found {{ total_guests }} guest{{ total_guests|pluralize }} matching "{{ search_query }}"
+        {% else %}
+            Total {{ total_guests }} guest{{ total_guests|pluralize }}
+        {% endif %}
+    </div>
+
+    <!-- Guests Table -->
+    <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <tr>
+                    <th style="padding: 15px; text-align: left;">Guest ID</th>
+                    <th style="padding: 15px; text-align: left;">Name</th>
+                    <th style="padding: 15px; text-align: left;">Email</th>
+                    <th style="padding: 15px; text-align: left;">Phone</th>
+                    <th style="padding: 15px; text-align: left;">Loyalty Level</th>
+                    <th style="padding: 15px; text-align: left;">Member ID</th>
+                    <th style="padding: 15px; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for guest in page_obj %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px; font-weight: bold;">#{{ guest.guest_id }}</td>
+                    <td style="padding: 15px;">{{ guest.full_name }}</td>
+                    <td style="padding: 15px;">{{ guest.email }}</td>
+                    <td style="padding: 15px;">{{ guest.contact_number }}</td>
+                    <td style="padding: 15px;">
+                        <span style="background: {% if guest.loyalty_level == 'DIAMOND' %}#b83dba{% elif guest.loyalty_level == 'PLATINUM' %}#6c757d{% elif guest.loyalty_level == 'GOLD' %}#ffc107{% elif guest.loyalty_level == 'SILVER' %}#6f42c1{% else %}#cd7f32{% endif %}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            {{ guest.get_loyalty_level_display }}
+                        </span>
+                    </td>
+                    <td style="padding: 15px;">{{ guest.member_id|default:"-" }}</td>
+                    <td style="padding: 15px; text-align: center;">
+                        <a href="{% url 'guest-detail' guest.guest_id %}" 
+                           style="background: #28a745; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                            👁️ View
+                        </a>
+                        <a href="{% url 'guest-update' guest.guest_id %}" 
+                           style="background: #ffc107; color: black; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                            ✏️ Edit
+                        </a>
+                        <a href="{% url 'guest-delete' guest.guest_id %}" 
+                           style="background: #dc3545; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                            🗑️ Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="padding: 40px; text-align: center; color: #666;">
+                        {% if search_query %}
+                            No guests found matching your search criteria.
+                        {% else %}
+                            No guests registered yet. <a href="{% url 'guest-create' %}">Add the first guest</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="margin-top: 20px; text-align: center;">
+        <div style="display: inline-flex; gap: 5px;">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Previous</a>
+            {% endif %}
+            
+            <span style="padding: 8px 12px; background: #f8f9fa; border-radius: 4px;">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
