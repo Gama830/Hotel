@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px; max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #333; margin: 0;">{{ rate_plan.rate_name }}</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'rate-plan-update' rate_plan.rate_plan_id %}" 
+               style="background: #ffc107; color: black; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                ✏️ Edit Rate Plan
+            </a>
+            <a href="{% url 'rate-plan-list' %}" 
+               style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+                ← Back to Rate Plans
+            </a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+        <!-- Main Information -->
+        <div>
+            <!-- Basic Information Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    📋 Basic Information
+                </h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <strong style="color: #333;">Rate Plan ID:</strong>
+                        <p style="margin: 5px 0 15px 0; font-size: 18px; font-weight: bold; color: #667eea;">#{{ rate_plan.rate_plan_id }}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #333;">Room Type:</strong>
+                        <p style="margin: 5px 0 15px 0;">{{ rate_plan.room_type.name }}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #333;">Season Type:</strong>
+                        <p style="margin: 5px 0 15px 0;">
+                            <span style="background: {% if rate_plan.season_type == 'PEAK' %}#dc3545{% elif rate_plan.season_type == 'HIGH' %}#fd7e14{% elif rate_plan.season_type == 'REGULAR' %}#28a745{% elif rate_plan.season_type == 'LOW' %}#17a2b8{% else %}#6c757d{% endif %}; color: white; padding: 6px 12px; border-radius: 4px; font-size: 14px;">
+                                {{ rate_plan.get_season_type_display }}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <strong style="color: #333;">Status:</strong>
+                        <p style="margin: 5px 0 15px 0;">
+                            <span style="background: {% if rate_plan.is_active %}#28a745{% else %}#dc3545{% endif %}; color: white; padding: 6px 12px; border-radius: 4px; font-size: 14px;">
+                                {% if rate_plan.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                            {% if rate_plan.is_currently_valid %}
+                                <span style="background: #17a2b8; color: white; padding: 6px 12px; border-radius: 4px; font-size: 14px; margin-left: 10px;">
+                                    Currently Valid
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Information Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    💰 Pricing Details
+                </h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <strong style="color: #333;">Base Rate:</strong>
+                        <p style="margin: 5px 0 15px 0; font-size: 24px; font-weight: bold; color: #28a745;">₹{{ rate_plan.base_rate }}</p>
+                        <small style="color: #666;">per night</small>
+                    </div>
+                    <div>
+                        <strong style="color: #333;">Additional Guest Charges:</strong>
+                        <p style="margin: 5px 0 15px 0; font-size: 18px; font-weight: bold; color: #fd7e14;">₹{{ rate_plan.additional_guest_charges }}</p>
+                        <small style="color: #666;">per extra guest per night</small>
+                    </div>
+                </div>
+                {% if rate_plan.weekend_surcharge > 0 %}
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px;">
+                    <strong style="color: #856404;">Weekend Surcharge:</strong>
+                    <p style="margin: 5px 0 0 0; color: #856404;">
+                        {% if rate_plan.is_percentage_surcharge %}
+                            Additional {{ rate_plan.weekend_surcharge }}% on weekends
+                        {% else %}
+                            Additional ₹{{ rate_plan.weekend_surcharge }} on weekends
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Meal Plan Information Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    🍽️ Meal Plan
+                </h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <strong style="color: #333;">Meal Plan Type:</strong>
+                        <p style="margin: 5px 0 15px 0; font-size: 16px;">{{ rate_plan.get_meal_plan_display }}</p>
+                    </div>
+                    <div>
+                        <strong style="color: #333;">Meal Plan Cost:</strong>
+                        <p style="margin: 5px 0 15px 0; font-size: 16px; font-weight: bold; color: #17a2b8;">₹{{ rate_plan.meal_plan_cost }}</p>
+                        <small style="color: #666;">per person per day</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policies Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    📜 Policies & Terms
+                </h3>
+                <div style="margin-bottom: 20px;">
+                    <strong style="color: #333;">Cancellation Policy:</strong>
+                    <p style="margin: 10px 0; line-height: 1.6; color: #555; background: #f8f9fa; padding: 15px; border-radius: 6px;">{{ rate_plan.cancellation_policy }}</p>
+                </div>
+                {% if rate_plan.description %}
+                <div>
+                    <strong style="color: #333;">Additional Terms:</strong>
+                    <p style="margin: 10px 0; line-height: 1.6; color: #555;">{{ rate_plan.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+            <!-- Validity & Requirements Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    📅 Validity & Requirements
+                </h3>
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #333;">Validity Period:</strong>
+                    <p style="margin: 5px 0; background: #e7f3ff; padding: 10px; border-radius: 6px; text-align: center;">
+                        <span style="font-weight: bold;">{{ rate_plan.valid_from|date:"M d, Y" }}</span>
+                        <br><small style="color: #666;">to</small><br>
+                        <span style="font-weight: bold;">{{ rate_plan.valid_to|date:"M d, Y" }}</span>
+                    </p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #333;">Minimum Stay:</strong>
+                    <p style="margin: 5px 0;">{{ rate_plan.minimum_stay }} night{{ rate_plan.minimum_stay|pluralize }}</p>
+                </div>
+                {% if rate_plan.maximum_stay %}
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #333;">Maximum Stay:</strong>
+                    <p style="margin: 5px 0;">{{ rate_plan.maximum_stay }} night{{ rate_plan.maximum_stay|pluralize }}</p>
+                </div>
+                {% endif %}
+                <div>
+                    <strong style="color: #333;">Advance Booking:</strong>
+                    <p style="margin: 5px 0;">
+                        {% if rate_plan.advance_booking_days > 0 %}
+                            {{ rate_plan.advance_booking_days }} days required
+                        {% else %}
+                            No advance booking required
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    ⚡ Quick Actions
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="{% url 'rate-plan-update' rate_plan.rate_plan_id %}" 
+                       style="background: #28a745; color: white; padding: 12px; text-decoration: none; border-radius: 6px; text-align: center; font-weight: bold;">
+                        ✏️ Edit Rate Plan
+                    </a>
+                    <a href="{% url 'rate-plan-toggle-status' rate_plan.rate_plan_id %}" 
+                       style="background: {% if rate_plan.is_active %}#dc3545{% else %}#28a745{% endif %}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; text-align: center; font-weight: bold;">
+                        {% if rate_plan.is_active %}🚫 Deactivate{% else %}✅ Activate{% endif %}
+                    </a>
+                    <a href="{% url 'rate-calculator' %}?room_type={{ rate_plan.room_type.id }}" 
+                       style="background: #17a2b8; color: white; padding: 12px; text-decoration: none; border-radius: 6px; text-align: center; font-weight: bold;">
+                        🧮 Calculate Rates
+                    </a>
+                    <a href="{% url 'rate-plan-delete' rate_plan.rate_plan_id %}" 
+                       style="background: #dc3545; color: white; padding: 12px; text-decoration: none; border-radius: 6px; text-align: center; font-weight: bold;"
+                       onclick="return confirm('Are you sure you want to delete this rate plan?')">
+                        🗑️ Delete Rate Plan
+                    </a>
+                </div>
+            </div>
+
+            <!-- Rate Summary Card -->
+            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    📊 Rate Summary
+                </h3>
+                <div style="font-size: 14px; color: #666;">
+                    <p style="margin-bottom: 10px;">
+                        <strong>Created:</strong><br>
+                        {{ rate_plan.created_at|date:"F d, Y g:i A" }}
+                    </p>
+                    <p style="margin-bottom: 10px;">
+                        <strong>Last Updated:</strong><br>
+                        {{ rate_plan.updated_at|date:"F d, Y g:i A" }}
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        <strong>Duration:</strong><br>
+                        {{ rate_plan.duration_nights }} night{{ rate_plan.duration_nights|pluralize }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

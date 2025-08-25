@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'amenities',
     'guest',
     'booking',
+    'rate',
 ]
 
 MIDDLEWARE = [

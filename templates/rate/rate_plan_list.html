@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #333; margin: 0;">Rate Master</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'rate-calculator' %}"
+                style="background: #17a2b8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                🧮 Rate Calculator
+            </a>
+            <a href="{% url 'current-rates' %}"
+                style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                📊 Current Rates
+            </a>
+            <a href="{% url 'rate-plan-create' %}"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                ➕ New Rate Plan
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div
+        style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <form method="GET"
+            style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Search</label>
+                <input type="text" name="search" value="{{ search_query }}"
+                    placeholder="Search by rate name, room type, or description..."
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Room Type</label>
+                {{ form.room_type }}
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Season</label>
+                {{ form.season_type }}
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Meal Plan</label>
+                {{ form.meal_plan }}
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Status</label>
+                {{ form.is_active }}
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit"
+                    style="background: #667eea; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                    🔍 Filter
+                </button>
+                <a href="{% url 'rate-plan-list' %}"
+                    style="background: #6c757d; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div style="margin-bottom: 20px; color: #666;">
+        Total {{ total_rate_plans }} rate plan{{ total_rate_plans|pluralize }}
+        {% if search_query %}matching "{{ search_query }}"{% endif %}
+    </div>
+
+    <!-- Rate Plans Table -->
+    <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <tr>
+                    <th style="padding: 15px; text-align: left;">Rate Plan</th>
+                    <th style="padding: 15px; text-align: left;">Room Type</th>
+                    <th style="padding: 15px; text-align: left;">Season</th>
+                    <th style="padding: 15px; text-align: left;">Validity Period</th>
+                    <th style="padding: 15px; text-align: left;">Base Rate</th>
+                    <th style="padding: 15px; text-align: left;">Meal Plan</th>
+                    <th style="padding: 15px; text-align: left;">Status</th>
+                    <th style="padding: 15px; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rate_plan in page_obj %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px;">
+                        <strong>{{ rate_plan.rate_name }}</strong>
+                        <br><small style="color: #666;">ID: {{ rate_plan.rate_plan_id }}</small>
+                    </td>
+                    <td style="padding: 15px;">{{ rate_plan.room_type.name }}</td>
+                    <td style="padding: 15px;">
+                        <span class="season-badge"
+                            style="background: {% if rate_plan.season_type == 'PEAK' %}#dc3545{% elif rate_plan.season_type == 'HIGH' %}#fd7e14{% elif rate_plan.season_type == 'REGULAR' %}#28a745{% elif rate_plan.season_type == 'LOW' %}#17a2b8{% else %}#6c757d{% endif %};">
+                            {{ rate_plan.get_season_type_display }}
+                        </span>
+                    </td>
+                    <td style="padding: 15px; font-size: 14px;">
+                        {{ rate_plan.valid_from|date:"M d, Y" }} - {{ rate_plan.valid_to|date:"M d, Y" }}
+                        {% if rate_plan.is_currently_valid %}
+                        <br><small style="color: #28a745; font-weight: bold;">Currently Valid</small>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px; font-weight: bold;">₹{{ rate_plan.base_rate }}</td>
+                    <td style="padding: 15px;">{{ rate_plan.get_meal_plan_display }}</td>
+                    <td style="padding: 15px;">
+                        <span class="status-badge"
+                            style="background: {% if rate_plan.is_active %}#28a745{% else %}#dc3545{% endif %};">
+                            {% if rate_plan.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td style="padding: 15px; text-align: center;">
+                        <a href="{% url 'rate-plan-detail' rate_plan.rate_plan_id %}"
+                            style="background: #28a745; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                            👁️ View
+                        </a>
+                        <a href="{% url 'rate-plan-update' rate_plan.rate_plan_id %}"
+                            style="background: #ffc107; color: black; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                            ✏️ Edit
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="padding: 40px; text-align: center; color: #666;">
+                        {% if search_query %}
+                        No rate plans found matching your criteria.
+                        {% else %}
+                        No rate plans created yet. <a href="{% url 'rate-plan-create' %}">Create the first rate plan</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="margin-top: 20px; text-align: center;">
+        <div style="display: inline-flex; gap: 5px;">
+            {% if page_obj.has_previous %}
+            <a href="?page=1"
+                style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}"
+                style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Previous</a>
+            {% endif %}
+
+            <span style="padding: 8px 12px; background: #f8f9fa; border-radius: 4px;">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+                style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}"
+                style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
+    .season-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: white;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

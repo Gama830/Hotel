@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #333; margin: 0;">Rate Calculator</h1>
+        <a href="{% url 'rate-plan-list' %}" 
+           style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+            ← Back to Rate Plans
+        </a>
+    </div>
+
+    <!-- Calculator Form -->
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            🧮 Calculate Room Rates
+        </h3>
+        
+        <form method="GET">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 20px; align-items: end;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Room Type</label>
+                    {{ form.room_type }}
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Check-in Date</label>
+                    {{ form.check_in_date }}
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Check-out Date</label>
+                    {{ form.check_out_date }}
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Number of Guests</label>
+                    {{ form.number_of_guests }}
+                </div>
+                <div>
+                    <button type="submit" 
+                            style="background: #667eea; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                        Calculate Rates
+                    </button>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                {{ form.include_meals }}
+                <label style="font-weight: bold; color: #333;">{{ form.include_meals.label }}</label>
+                <small style="color: #666;">{{ form.include_meals.help_text }}</small>
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Results -->
+    {% if calculation_performed %}
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                📊 Available Rate Plans
+            </h3>
+            
+            {% if calculated_rates %}
+                <div style="display: grid; gap: 20px;">
+                    {% for rate_info in calculated_rates %}
+                        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h4 style="color: #333; margin: 0 0 5px 0;">{{ rate_info.rate_plan.rate_name }}</h4>
+                                    <p style="color: #666; margin: 0; font-size: 14px;">
+                                        {{ rate_info.rate_plan.get_season_type_display }} • {{ rate_info.rate_plan.get_meal_plan_display }}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #28a745;">₹{{ rate_info.total_cost }}</div>
+                                    <div style="font-size: 14px; color: #666;">Total for {{ rate_info.nights }} night{{ rate_info.nights|pluralize }}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <strong style="color: #333; font-size: 14px;">Base Rate:</strong>
+                                    <div style="color: #666;">₹{{ rate_info.rate_plan.base_rate }}/night</div>
+                                </div>
+                                <div>
+                                    <strong style="color: #333; font-size: 14px;">Per Night Average:</strong>
+                                    <div style="color: #666;">₹{{ rate_info.cost_per_night|floatformat:2 }}</div>
+                                </div>
+                                <div>
+                                    <strong style="color: #333; font-size: 14px;">Guests:</strong>
+                                    <div style="color: #666;">{{ rate_info.guests }} guest{{ rate_info.guests|pluralize }}</div>
+                                </div>
+                                <div>
+                                    <strong style="color: #333; font-size: 14px;">Validity:</strong>
+                                    <div style="color: #666; font-size: 12px;">{{ rate_info.rate_plan.validity_period }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if rate_info.rate_plan.additional_guest_charges > 0 and rate_info.guests > 1 %}
+                                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                    <small style="color: #856404;">
+                                        <strong>Additional Guest Charges:</strong> ₹{{ rate_info.rate_plan.additional_guest_charges }} per extra guest per night
+                                    </small>
+                                </div>
+                            {% endif %}
+                            
+                            {% if rate_info.rate_plan.meal_plan != 'EP' and rate_info.rate_plan.meal_plan_cost > 0 %}
+                                <div style="background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                    <small style="color: #0c5460;">
+                                        <strong>Meal Plan:</strong> {{ rate_info.rate_plan.get_meal_plan_display }} - ₹{{ rate_info.rate_plan.meal_plan_cost }} per person per day
+                                    </small>
+                                </div>
+                            {% endif %}
+                            
+                            {% if rate_info.rate_plan.weekend_surcharge > 0 %}
+                                <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                    <small style="color: #721c24;">
+                                        <strong>Weekend Surcharge:</strong> 
+                                        {% if rate_info.rate_plan.is_percentage_surcharge %}
+                                            {{ rate_info.rate_plan.weekend_surcharge }}%
+                                        {% else %}
+                                            ₹{{ rate_info.rate_plan.weekend_surcharge }}
+                                        {% endif %}
+                                        additional on weekends
+                                    </small>
+                                </div>
+                            {% endif %}
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                                <div style="font-size: 12px; color: #666;">
+                                    Min Stay: {{ rate_info.rate_plan.minimum_stay }} night{{ rate_info.rate_plan.minimum_stay|pluralize }}
+                                    {% if rate_info.rate_plan.maximum_stay %}
+                                        • Max Stay: {{ rate_info.rate_plan.maximum_stay }} night{{ rate_info.rate_plan.maximum_stay|pluralize }}
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'rate-plan-detail' rate_info.rate_plan.rate_plan_id %}" 
+                                   style="background: #17a2b8; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">😔</div>
+                    <h4 style="margin-bottom: 10px;">No Rate Plans Available</h4>
+                    <p>No rate plans found for the selected room type and dates. Please try different dates or check if rate plans are configured for this room type.</p>
+                    <a href="{% url 'rate-plan-create' %}" 
+                       style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; display: inline-block;">
+                        Create Rate Plan
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 20px;">🧮</div>
+            <h3 style="color: #333; margin-bottom: 15px;">Rate Calculator</h3>
+            <p style="color: #666; font-size: 16px;">Select your room type, dates, and number of guests to calculate available rates.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    .form-check-input {
+        margin-right: 8px;
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}

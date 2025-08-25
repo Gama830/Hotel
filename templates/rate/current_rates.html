@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #333; margin: 0;">Current Rates</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'rate-calculator' %}" 
+               style="background: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+                🧮 Rate Calculator
+            </a>
+            <a href="{% url 'rate-plan-list' %}" 
+               style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+                ← Back to Rate Plans
+            </a>
+        </div>
+    </div>
+
+    <!-- Current Date Info -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center;">
+        <h3 style="margin: 0 0 10px 0;">Currently Valid Rate Plans</h3>
+        <p style="margin: 0; opacity: 0.9;">As of {{ today|date:"F d, Y" }}</p>
+    </div>
+
+    {% if rates_by_room_type %}
+        {% for room_type_name, rate_plans in rates_by_room_type.items %}
+            <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; overflow: hidden;">
+                <!-- Room Type Header -->
+                <div style="background: #f8f9fa; padding: 20px; border-bottom: 1px solid #dee2e6;">
+                    <h3 style="color: #333; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        🏨 {{ room_type_name }}
+                        <span style="background: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: normal;">
+                            {{ rate_plans|length }} rate{{ rate_plans|length|pluralize }}
+                        </span>
+                    </h3>
+                </div>
+
+                <!-- Rate Plans Grid -->
+                <div style="padding: 20px;">
+                    <div style="display: grid; gap: 20px;">
+                        {% for rate_plan in rate_plans %}
+                            <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background: #fafafa;">
+                                <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 15px;">
+                                    <div style="flex: 1;">
+                                        <h4 style="color: #333; margin: 0 0 5px 0; display: flex; align-items: center; gap: 10px;">
+                                            {{ rate_plan.rate_name }}
+                                            <span style="background: {% if rate_plan.season_type == 'PEAK' %}#dc3545{% elif rate_plan.season_type == 'HIGH' %}#fd7e14{% elif rate_plan.season_type == 'REGULAR' %}#28a745{% elif rate_plan.season_type == 'LOW' %}#17a2b8{% else %}#6c757d{% endif %}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: normal;">
+                                                {{ rate_plan.get_season_type_display }}
+                                            </span>
+                                        </h4>
+                                        <p style="color: #666; margin: 0; font-size: 14px;">
+                                            Valid: {{ rate_plan.valid_from|date:"M d" }} - {{ rate_plan.valid_to|date:"M d, Y" }}
+                                        </p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 28px; font-weight: bold; color: #28a745;">₹{{ rate_plan.base_rate }}</div>
+                                        <div style="font-size: 14px; color: #666;">per night</div>
+                                    </div>
+                                </div>
+
+                                <!-- Rate Details Grid -->
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                                    <div>
+                                        <strong style="color: #333; font-size: 14px; display: block;">Meal Plan:</strong>
+                                        <span style="color: #666;">{{ rate_plan.get_meal_plan_display }}</span>
+                                        {% if rate_plan.meal_plan_cost > 0 %}
+                                            <span style="color: #28a745; font-weight: bold;"> (+₹{{ rate_plan.meal_plan_cost }}/person/day)</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    {% if rate_plan.additional_guest_charges > 0 %}
+                                    <div>
+                                        <strong style="color: #333; font-size: 14px; display: block;">Extra Guest:</strong>
+                                        <span style="color: #666;">₹{{ rate_plan.additional_guest_charges }}/night</span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div>
+                                        <strong style="color: #333; font-size: 14px; display: block;">Min Stay:</strong>
+                                        <span style="color: #666;">{{ rate_plan.minimum_stay }} night{{ rate_plan.minimum_stay|pluralize }}</span>
+                                    </div>
+                                    
+                                    {% if rate_plan.weekend_surcharge > 0 %}
+                                    <div>
+                                        <strong style="color: #333; font-size: 14px; display: block;">Weekend Surcharge:</strong>
+                                        <span style="color: #dc3545;">
+                                            {% if rate_plan.is_percentage_surcharge %}
+                                                +{{ rate_plan.weekend_surcharge }}%
+                                            {% else %}
+                                                +₹{{ rate_plan.weekend_surcharge }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Cancellation Policy Preview -->
+                                {% if rate_plan.cancellation_policy %}
+                                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 12px; margin-bottom: 15px;">
+                                    <strong style="color: #856404; font-size: 14px;">Cancellation Policy:</strong>
+                                    <p style="color: #856404; margin: 5px 0 0 0; font-size: 13px; line-height: 1.4;">
+                                        {{ rate_plan.cancellation_policy|truncatewords:20 }}
+                                        {% if rate_plan.cancellation_policy|wordcount > 20 %}...{% endif %}
+                                    </p>
+                                </div>
+                                {% endif %}
+
+                                <!-- Action Buttons -->
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-size: 12px; color: #666;">
+                                        Rate ID: {{ rate_plan.rate_plan_id }}
+                                        {% if rate_plan.advance_booking_days > 0 %}
+                                            • Advance booking: {{ rate_plan.advance_booking_days }} days
+                                        {% endif %}
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <a href="{% url 'rate-plan-detail' rate_plan.rate_plan_id %}" 
+                                           style="background: #28a745; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                                            👁️ View Details
+                                        </a>
+                                        <a href="{% url 'rate-plan-update' rate_plan.rate_plan_id %}" 
+                                           style="background: #ffc107; color: black; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+                                            ✏️ Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="background: white; padding: 60px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 20px;">📊</div>
+            <h3 style="color: #333; margin-bottom: 15px;">No Current Rate Plans</h3>
+            <p style="color: #666; font-size: 16px; margin-bottom: 30px;">
+                There are no active rate plans valid for today ({{ today|date:"F d, Y" }}).
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <a href="{% url 'rate-plan-create' %}" 
+                   style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                    ➕ Create Rate Plan
+                </a>
+                <a href="{% url 'rate-plan-list' %}" 
+                   style="background: #6c757d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                    📋 View All Rates
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    @media (max-width: 768px) {
+        .rate-details-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .action-buttons {
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+        
+        .rate-header {
+            flex-direction: column !important;
+            align-items: start !important;
+            gap: 10px !important;
+        }
+    }
+</style>
+{% endblock %}
