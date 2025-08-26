@@ -8,8 +8,8 @@ class RoomForm(forms.ModelForm):
         fields = [
             'room_number', 'room_type', 'floor', 'bed_type',
             'single_bed', 'double_bed', 'extra_bed',
-            'max_occupancy', 'allow_pax', 'status', 'description',
-            'view', 'amenities', 'rate_default', 'tariff'
+            'max_occupancy', 'status', 'description',
+            'view', 'amenities', 'rate_default'
         ]
         widgets = {
             'room_number': forms.TextInput(attrs={
@@ -31,10 +31,7 @@ class RoomForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Max Occupancy'
             }),
-            'allow_pax': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Allow Pax'
-            }),
+
             'status': forms.Select(attrs={
                 'class': 'form-control'
             }),
@@ -54,11 +51,7 @@ class RoomForm(forms.ModelForm):
                 'placeholder': '0.00',
                 'step': '0.01'
             }),
-            'tariff': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': '0.00',
-                'step': '0.01'
-            }),
+
         }
         labels = {
             'room_number': 'Room ID/Number',
@@ -69,13 +62,11 @@ class RoomForm(forms.ModelForm):
             'double_bed': 'Double Bed',
             'extra_bed': 'Extra Bed',
             'max_occupancy': 'Max Occupancy',
-            'allow_pax': 'Allow Pax',
             'status': 'Status',
             'description': 'Description/Notes',
             'view': 'View',
             'amenities': 'Features/Amenities',
-            'rate_default': 'Rate (Default)',
-            'tariff': 'Tariff'
+            'rate_default': 'Rate (Default)'
         }
     
     def __init__(self, *args, **kwargs):

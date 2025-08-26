@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'guest',
     'booking',
     'rate',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
