@@ -6,30 +6,32 @@
     <div style="background-color: #6f42c1; color: white; padding: 15px 20px; margin: 0; border-radius: 8px 8px 0 0;">
         <h3 style="margin: 0; font-size: 18px;">
             {% if is_edit %}
-                Room Master - Edit Room {{ object.room_number }}
+            Room Master - Edit Room {{ object.room_number }}
             {% else %}
-                Room Master - Create Room
+            Room Master - Create Room
             {% endif %}
         </h3>
     </div>
 
     <!-- Form container -->
-    <div style="background-color: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        
+    <div
+        style="background-color: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
         <!-- Display form errors -->
         {% if form.errors %}
-        <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        <div
+            style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
             <strong>Please correct the following errors:</strong>
             <ul style="margin: 10px 0 0 20px;">
                 {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                        <li>{{ field }}: {{ error }}</li>
-                    {% endfor %}
+                {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
                 {% endfor %}
             </ul>
         </div>
         {% endif %}
-        
+
         <form method="post">
             {% csrf_token %}
 
@@ -41,7 +43,7 @@
                 </div>
                 <div style="flex: 1;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                        Room Type 
+                        Room Type
                         <span style="color: #007bff; font-size: 12px;">⚡ Auto-fills related fields</span>
                     </label>
                     {{ form.room_type }}
@@ -63,12 +65,14 @@
                 <div style="flex: 1;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Bed Type</label>
                     {{ form.bed_type }}
-                    <small id="bed-type-info" style="color: #666; font-size: 12px; display: none;">Auto-filled from room type</small>
+                    <small id="bed-type-info" style="color: #666; font-size: 12px; display: none;">Auto-filled from room
+                        type</small>
                 </div>
                 <div style="flex: 1;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Max Occupancy</label>
                     {{ form.max_occupancy }}
-                    <small id="max-occupancy-info" style="color: #666; font-size: 12px; display: none;">Auto-filled from room type</small>
+                    <small id="max-occupancy-info" style="color: #666; font-size: 12px; display: none;">Auto-filled from
+                        room type</small>
                 </div>
                 <div style="flex: 1;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Status</label>
@@ -80,7 +84,8 @@
             <div style="display: flex; gap: 20px; margin-bottom: 20px;">
                 <div style="flex: 1;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Additional Bed Options</label>
-                    <div style="display: flex; gap: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
+                    <div
+                        style="display: flex; gap: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f8f9fa;">
                         <div style="display: flex; align-items: center;">
                             {{ form.single_bed }}
                             <span style="margin-left: 5px;">Single</span>
@@ -110,7 +115,8 @@
             <!-- Fifth Row - Features/Amenities -->
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 10px; font-weight: 500;">Features/Amenities</label>
-                <div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background-color: #f8f9fa; max-height: 200px; overflow-y: auto;">
+                <div
+                    style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background-color: #f8f9fa; max-height: 200px; overflow-y: auto;">
                     {{ form.amenities }}
                 </div>
             </div>
@@ -120,7 +126,8 @@
                 <div style="flex: 1;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 500;">Rate (Default) - ₹</label>
                     {{ form.rate_default }}
-                    <small id="rate-info" style="color: #666; font-size: 12px; display: none;">Auto-filled from room type</small>
+                    <small id="rate-info" style="color: #666; font-size: 12px; display: none;">Auto-filled from room
+                        type</small>
                 </div>
                 <div style="flex: 2;">
                     <!-- Empty space to maintain layout -->
@@ -172,109 +179,109 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const roomTypeSelect = document.querySelector('select[name="room_type"]');
-    const bedTypeSelect = document.querySelector('select[name="bed_type"]');
-    const maxOccupancyInput = document.querySelector('input[name="max_occupancy"]');
-    const rateDefaultInput = document.querySelector('input[name="rate_default"]');
-    
-    // Info elements
-    const bedTypeInfo = document.getElementById('bed-type-info');
-    const maxOccupancyInfo = document.getElementById('max-occupancy-info');
-    const rateInfo = document.getElementById('rate-info');
+    document.addEventListener('DOMContentLoaded', function () {
+        const roomTypeSelect = document.querySelector('select[name="room_type"]');
+        const bedTypeSelect = document.querySelector('select[name="bed_type"]');
+        const maxOccupancyInput = document.querySelector('input[name="max_occupancy"]');
+        const rateDefaultInput = document.querySelector('input[name="rate_default"]');
 
-    if (roomTypeSelect) {
-        roomTypeSelect.addEventListener('change', function() {
-            const roomTypeId = this.value;
-            
-            if (roomTypeId) {
-                // Check if auto-fill is enabled
-                const autoFillEnabled = document.getElementById('auto-fill-enabled').checked;
-                if (!autoFillEnabled) {
-                    return;
+        // Info elements
+        const bedTypeInfo = document.getElementById('bed-type-info');
+        const maxOccupancyInfo = document.getElementById('max-occupancy-info');
+        const rateInfo = document.getElementById('rate-info');
+
+        if (roomTypeSelect) {
+            roomTypeSelect.addEventListener('change', function () {
+                const roomTypeId = this.value;
+
+                if (roomTypeId) {
+                    // Check if auto-fill is enabled
+                    const autoFillEnabled = document.getElementById('auto-fill-enabled').checked;
+                    if (!autoFillEnabled) {
+                        return;
+                    }
+
+                    // Check if this is a new room (no existing values) or user wants to override
+                    const isNewRoom = !bedTypeSelect.value && !maxOccupancyInput.value && !rateDefaultInput.value;
+                    const userConfirmed = isNewRoom || confirm('This will override existing values with room type defaults. Continue?');
+
+                    if (!userConfirmed) {
+                        return;
+                    }
+                    // Show loading state
+                    document.body.classList.add('loading');
+
+                    // Fetch room type details
+                    fetch(`/api/room-type/${roomTypeId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                console.error('Error:', data.error);
+                                return;
+                            }
+
+                            // Auto-fill bed type
+                            if (bedTypeSelect && data.bed_type) {
+                                bedTypeSelect.value = data.bed_type;
+                                bedTypeSelect.classList.add('auto-filled');
+                                bedTypeInfo.style.display = 'block';
+                                bedTypeInfo.textContent = `Auto-filled: ${data.bed_type_display}`;
+                            }
+
+                            // Auto-fill max occupancy
+                            if (maxOccupancyInput && data.max_occupancy) {
+                                maxOccupancyInput.value = data.max_occupancy;
+                                maxOccupancyInput.classList.add('auto-filled');
+                                maxOccupancyInfo.style.display = 'block';
+                                maxOccupancyInfo.textContent = `Auto-filled: ${data.max_occupancy} person${data.max_occupancy > 1 ? 's' : ''}`;
+                            }
+
+                            // Auto-fill default rate
+                            if (rateDefaultInput && data.rate_default) {
+                                rateDefaultInput.value = data.rate_default;
+                                rateDefaultInput.classList.add('auto-filled');
+                                rateInfo.style.display = 'block';
+                                rateInfo.textContent = `Auto-filled: ₹${data.rate_default}`;
+                            }
+
+                            // Show success message
+                            showNotification('Room type details auto-filled successfully!', 'success');
+                        })
+                        .catch(error => {
+                            console.error('Error fetching room type details:', error);
+                            showNotification('Error loading room type details', 'error');
+                        })
+                        .finally(() => {
+                            // Remove loading state
+                            document.body.classList.remove('loading');
+                        });
+                } else {
+                    // Clear auto-filled values when no room type is selected
+                    clearAutoFilledValues();
                 }
-                
-                // Check if this is a new room (no existing values) or user wants to override
-                const isNewRoom = !bedTypeSelect.value && !maxOccupancyInput.value && !rateDefaultInput.value;
-                const userConfirmed = isNewRoom || confirm('This will override existing values with room type defaults. Continue?');
-                
-                if (!userConfirmed) {
-                    return;
+            });
+        }
+
+        // Function to clear auto-filled values
+        function clearAutoFilledValues() {
+            [bedTypeSelect, maxOccupancyInput, rateDefaultInput].forEach(element => {
+                if (element) {
+                    element.classList.remove('auto-filled');
                 }
-                // Show loading state
-                document.body.classList.add('loading');
-                
-                // Fetch room type details
-                fetch(`/api/room-type/${roomTypeId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            console.error('Error:', data.error);
-                            return;
-                        }
-                        
-                        // Auto-fill bed type
-                        if (bedTypeSelect && data.bed_type) {
-                            bedTypeSelect.value = data.bed_type;
-                            bedTypeSelect.classList.add('auto-filled');
-                            bedTypeInfo.style.display = 'block';
-                            bedTypeInfo.textContent = `Auto-filled: ${data.bed_type_display}`;
-                        }
-                        
-                        // Auto-fill max occupancy
-                        if (maxOccupancyInput && data.max_occupancy) {
-                            maxOccupancyInput.value = data.max_occupancy;
-                            maxOccupancyInput.classList.add('auto-filled');
-                            maxOccupancyInfo.style.display = 'block';
-                            maxOccupancyInfo.textContent = `Auto-filled: ${data.max_occupancy} person${data.max_occupancy > 1 ? 's' : ''}`;
-                        }
-                        
-                        // Auto-fill default rate
-                        if (rateDefaultInput && data.rate_default) {
-                            rateDefaultInput.value = data.rate_default;
-                            rateDefaultInput.classList.add('auto-filled');
-                            rateInfo.style.display = 'block';
-                            rateInfo.textContent = `Auto-filled: ₹${data.rate_default}`;
-                        }
-                        
-                        // Show success message
-                        showNotification('Room type details auto-filled successfully!', 'success');
-                    })
-                    .catch(error => {
-                        console.error('Error fetching room type details:', error);
-                        showNotification('Error loading room type details', 'error');
-                    })
-                    .finally(() => {
-                        // Remove loading state
-                        document.body.classList.remove('loading');
-                    });
-            } else {
-                // Clear auto-filled values when no room type is selected
-                clearAutoFilledValues();
-            }
-        });
-    }
-    
-    // Function to clear auto-filled values
-    function clearAutoFilledValues() {
-        [bedTypeSelect, maxOccupancyInput, rateDefaultInput].forEach(element => {
-            if (element) {
-                element.classList.remove('auto-filled');
-            }
-        });
-        
-        [bedTypeInfo, maxOccupancyInfo, rateInfo].forEach(info => {
-            if (info) {
-                info.style.display = 'none';
-            }
-        });
-    }
-    
-    // Function to show notifications
-    function showNotification(message, type) {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.style.cssText = `
+            });
+
+            [bedTypeInfo, maxOccupancyInfo, rateInfo].forEach(info => {
+                if (info) {
+                    info.style.display = 'none';
+                }
+            });
+        }
+
+        // Function to show notifications
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -286,42 +293,42 @@ document.addEventListener('DOMContentLoaded', function() {
             animation: slideIn 0.3s ease-out;
             background-color: ${type === 'success' ? '#28a745' : '#dc3545'};
         `;
-        notification.textContent = message;
-        
-        // Add animation styles
-        const style = document.createElement('style');
-        style.textContent = `
+            notification.textContent = message;
+
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
             @keyframes slideIn {
                 from { transform: translateX(100%); opacity: 0; }
                 to { transform: translateX(0); opacity: 1; }
             }
         `;
-        document.head.appendChild(style);
-        
-        // Add to page
-        document.body.appendChild(notification);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.remove();
-            style.remove();
-        }, 3000);
-    }
-    
-    // Remove auto-filled styling when user manually changes values
-    [bedTypeSelect, maxOccupancyInput, rateDefaultInput].forEach(element => {
-        if (element) {
-            element.addEventListener('input', function() {
-                this.classList.remove('auto-filled');
-                // Hide corresponding info message
-                const infoId = this.name.replace('_', '-') + '-info';
-                const infoElement = document.getElementById(infoId);
-                if (infoElement) {
-                    infoElement.style.display = 'none';
-                }
-            });
+            document.head.appendChild(style);
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
         }
+
+        // Remove auto-filled styling when user manually changes values
+        [bedTypeSelect, maxOccupancyInput, rateDefaultInput].forEach(element => {
+            if (element) {
+                element.addEventListener('input', function () {
+                    this.classList.remove('auto-filled');
+                    // Hide corresponding info message
+                    const infoId = this.name.replace('_', '-') + '-info';
+                    const infoElement = document.getElementById(infoId);
+                    if (infoElement) {
+                        infoElement.style.display = 'none';
+                    }
+                });
+            }
+        });
     });
-});
 </script>
 {% endblock %}

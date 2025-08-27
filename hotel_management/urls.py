@@ -24,6 +24,5 @@ urlpatterns = [
     path('guests/', include('guest.urls')),
     path('bookings/', include('booking.urls')),
     path('rates/', include('rate.urls')),
-    path('dashboard/', include('dashboard.urls', namespace='dashboard')),
     path('', include('dashboard.urls')),  # Default to dashboard home
 ]

@@ -200,3 +200,72 @@ def room_availability_search(request):
         'search_performed': form.is_valid()
     }
     return render(request, 'booking/room_availability.html', context)
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
+from datetime import datetime
+from decimal import Decimal
+
+@require_POST
+def calculate_booking_amount(request):
+    """AJAX endpoint to calculate booking amount"""
+    try:
+        check_in_date = request.POST.get('check_in_date')
+        check_out_date = request.POST.get('check_out_date')
+        room_id = request.POST.get('room')
+        rate_plan_id = request.POST.get('rate_plan')
+        number_of_adults = int(request.POST.get('number_of_adults', 1))
+        number_of_children = int(request.POST.get('number_of_children', 0))
+        
+        if not all([check_in_date, check_out_date, room_id]):
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+        
+        # Parse dates
+        check_in = datetime.strptime(check_in_date, '%Y-%m-%d').date()
+        check_out = datetime.strptime(check_out_date, '%Y-%m-%d').date()
+        nights = (check_out - check_in).days
+        
+        if nights <= 0:
+            return JsonResponse({'error': 'Invalid date range'}, status=400)
+        
+        # Get room
+        try:
+            room = Room.objects.select_related('room_type').get(id=room_id)
+        except Room.DoesNotExist:
+            return JsonResponse({'error': 'Room not found'}, status=404)
+        
+        # Calculate amount
+        total_guests = number_of_adults + number_of_children
+        rate_per_night = Decimal('0.00')
+        total_amount = Decimal('0.00')
+        
+        # Try rate plan first
+        if rate_plan_id:
+            try:
+                from rate.models import RatePlan
+                rate_plan = RatePlan.objects.get(id=rate_plan_id)
+                total_amount = rate_plan.calculate_total_rate(nights, total_guests)
+                rate_per_night = rate_plan.base_rate
+            except:
+                pass
+        
+        # Fall back to room rates
+        if total_amount == 0:
+            if room.room_type and room.room_type.price_per_night:
+                rate_per_night = room.room_type.price_per_night
+                total_amount = rate_per_night * nights
+            elif room.rate_default:
+                rate_per_night = room.rate_default
+                total_amount = rate_per_night * nights
+        
+        return JsonResponse({
+            'total_amount': str(total_amount),
+            'rate_per_night': str(rate_per_night),
+            'nights': nights,
+            'total_guests': total_guests
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

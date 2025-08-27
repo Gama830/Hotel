@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 from guest.models import Guest
 from rooms.models import Room
+from rate.models import RatePlan
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -14,60 +15,146 @@ class Booking(models.Model):
         ('PENDING', 'Pending'),
     ]
     
+    BOOKING_SOURCE_CHOICES = [
+        ('DIRECT', 'Direct'),
+        ('OTA', 'Online Travel Agency'),
+        ('AGENT', 'Travel Agent'),
+        ('PHONE', 'Phone'),
+        ('EMAIL', 'Email'),
+        ('WALK_IN', 'Walk-in'),
+        ('CORPORATE', 'Corporate'),
+        ('WEBSITE', 'Website'),
+    ]
+    
+    PAYMENT_STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('PARTIAL', 'Partial Payment'),
+        ('PAID', 'Fully Paid'),
+        ('REFUNDED', 'Refunded'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+    
+    # Reservation/Booking ID (unique identifier) - Django auto-creates 'id' field
+    
     # Foreign Key relationships
     guest = models.ForeignKey(
         Guest, 
         on_delete=models.CASCADE,
         related_name='bookings',
-        help_text="The guest making this booking"
+        help_text="Guest ID or details"
     )
     room = models.ForeignKey(
         Room, 
         on_delete=models.CASCADE,
         related_name='bookings',
-        help_text="The room being booked"
+        help_text="Room Type and Number"
     )
     
-    # Date fields
+    # Rate Plan
+    rate_plan = models.ForeignKey(
+        RatePlan,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='bookings',
+        help_text="Rate Plan applied to this booking"
+    )
+    
+    # Date and Time fields
     check_in_date = models.DateField(
-        help_text="The scheduled date of arrival"
+        help_text="Check-in Date"
     )
     check_out_date = models.DateField(
-        help_text="The scheduled date of departure"
+        help_text="Check-out Date"
     )
     
-    # Guest count fields
+    # Actual check-in and check-out times
+    actual_check_in_time = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Actual check-in date and time"
+    )
+    actual_check_out_time = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Actual check-out date and time"
+    )
+    
+    # Number of Guests
     number_of_adults = models.PositiveIntegerField(
         default=1,
         validators=[MinValueValidator(1)],
-        help_text="The number of adults for the booking"
+        help_text="Number of adults"
     )
     number_of_children = models.PositiveIntegerField(
         default=0,
         validators=[MinValueValidator(0)],
-        help_text="The number of children for the booking"
+        help_text="Number of children"
     )
     
-    # Booking status
+    # Booking Source
+    booking_source = models.CharField(
+        max_length=20,
+        choices=BOOKING_SOURCE_CHOICES,
+        default='DIRECT',
+        help_text="Booking Source (direct, OTA, agent)"
+    )
+    
+    # Reservation Status
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='CONFIRMED',
-        help_text="The status of the booking"
+        help_text="Reservation Status (confirmed, pending, cancelled)"
     )
     
-    # Financial information
+    # Payment Details
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        help_text="The calculated total cost of the room for the stay"
+        help_text="Total booking amount"
     )
     
-    # Additional booking information
+    advance_payment = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text="Advance payment received"
+    )
+    
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='PENDING',
+        help_text="Payment status"
+    )
+    
+    payment_method = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Payment method used"
+    )
+    
+    # Special Requests
     special_requests = models.TextField(
         blank=True,
         null=True,
-        help_text="Any special requests or notes for the booking"
+        help_text="Special Requests"
+    )
+    
+    # Additional booking details
+    confirmation_number = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="External confirmation number (for OTA bookings)"
+    )
+    
+    booking_notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Internal booking notes"
     )
     
     # Timestamps
@@ -104,13 +191,39 @@ class Booking(models.Model):
         """Calculate the total amount based on room price and duration"""
         nights = self.duration_nights
         if nights > 0:
-            return self.room.price_per_night * nights
+            # Try rate plan first
+            if self.rate_plan:
+                try:
+                    return self.rate_plan.calculate_total_rate(nights, self.total_guests)
+                except:
+                    pass  # Fall back to room rates if rate plan calculation fails
+            
+            # Try room type price
+            if hasattr(self.room, 'room_type') and self.room.room_type and self.room.room_type.price_per_night:
+                return self.room.room_type.price_per_night * nights
+            
+            # Fall back to room default rate
+            if self.room.rate_default:
+                return self.room.rate_default * nights
+                
         return Decimal('0.00')
     
+    @property
+    def remaining_amount(self):
+        """Calculate remaining amount to be paid"""
+        return self.total_amount - self.advance_payment
+    
+    @property
+    def is_fully_paid(self):
+        """Check if booking is fully paid"""
+        return self.payment_status == 'PAID' or self.advance_payment >= self.total_amount
+    
     def save(self, *args, **kwargs):
-        # Auto-calculate total amount if not provided
-        if not self.total_amount:
-            self.total_amount = self.calculate_total_amount()
+        # Auto-calculate total amount if not provided or if it's zero
+        if not self.total_amount or self.total_amount == Decimal('0.00'):
+            calculated_amount = self.calculate_total_amount()
+            if calculated_amount > 0:
+                self.total_amount = calculated_amount
         super().save(*args, **kwargs)
     
     def clean(self):
@@ -143,3 +256,37 @@ class Booking(models.Model):
     def can_cancel(self):
         """Check if booking can be canceled"""
         return self.status in ['CONFIRMED', 'PENDING']
+    
+    def check_in(self):
+        """Perform check-in operation"""
+        from django.utils import timezone
+        if self.can_check_in():
+            self.status = 'CHECKED_IN'
+            self.actual_check_in_time = timezone.now()
+            # Update room status to occupied
+            self.room.status = 'OCCUPIED'
+            self.room.save()
+            self.save()
+            return True
+        return False
+    
+    def check_out(self):
+        """Perform check-out operation"""
+        from django.utils import timezone
+        if self.can_check_out():
+            self.status = 'CHECKED_OUT'
+            self.actual_check_out_time = timezone.now()
+            # Update room status to available
+            self.room.status = 'AVAILABLE'
+            self.room.save()
+            self.save()
+            return True
+        return False
+    
+    @property
+    def actual_duration_hours(self):
+        """Calculate actual stay duration in hours"""
+        if self.actual_check_in_time and self.actual_check_out_time:
+            duration = self.actual_check_out_time - self.actual_check_in_time
+            return duration.total_seconds() / 3600
+        return None

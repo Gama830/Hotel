@@ -19,7 +19,7 @@
                 <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
                     👤 Guest & Room Selection
                 </h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
                             {{ form.guest.label }}
@@ -39,6 +39,17 @@
                         {% if form.room.errors %}
                             <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
                                 {{ form.room.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.rate_plan.label }}
+                        </label>
+                        {{ form.rate_plan }}
+                        {% if form.rate_plan.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.rate_plan.errors }}
                             </div>
                         {% endif %}
                     </div>
@@ -74,7 +85,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px;">
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
                             {{ form.number_of_adults.label }}
@@ -99,6 +110,17 @@
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.booking_source.label }}
+                        </label>
+                        {{ form.booking_source }}
+                        {% if form.booking_source.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.booking_source.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
                             {{ form.status.label }}
                         </label>
                         {{ form.status }}
@@ -111,40 +133,99 @@
                 </div>
             </div>
 
-            <!-- Financial Information -->
+            <!-- Payment Details -->
             <div style="margin-bottom: 30px;">
                 <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
-                    💰 Financial Information
+                    💰 Payment Details
                 </h3>
-                <div style="max-width: 300px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                        {{ form.total_amount.label }}
-                    </label>
-                    {{ form.total_amount }}
-                    {% if form.total_amount.errors %}
-                        <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                            {{ form.total_amount.errors }}
-                        </div>
-                    {% endif %}
-                    <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
-                        {{ form.total_amount.help_text }}
-                    </small>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.total_amount.label }}
+                        </label>
+                        {{ form.total_amount }}
+                        {% if form.total_amount.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.total_amount.errors }}
+                            </div>
+                        {% endif %}
+                        <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                            {{ form.total_amount.help_text }}
+                        </small>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.advance_payment.label }}
+                        </label>
+                        {{ form.advance_payment }}
+                        {% if form.advance_payment.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.advance_payment.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.payment_status.label }}
+                        </label>
+                        {{ form.payment_status }}
+                        {% if form.payment_status.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.payment_status.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.payment_method.label }}
+                        </label>
+                        {{ form.payment_method }}
+                        {% if form.payment_method.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.payment_method.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
-            <!-- Special Requests -->
+            <!-- Additional Information -->
             <div style="margin-bottom: 30px;">
                 <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
-                    📝 Special Requests
+                    📝 Additional Information
                 </h3>
-                <div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.special_requests.label }}
+                        </label>
+                        {{ form.special_requests }}
+                        {% if form.special_requests.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.special_requests.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
+                            {{ form.booking_notes.label }}
+                        </label>
+                        {{ form.booking_notes }}
+                        {% if form.booking_notes.errors %}
+                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
+                                {{ form.booking_notes.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="max-width: 400px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                        {{ form.special_requests.label }}
+                        {{ form.confirmation_number.label }}
                     </label>
-                    {{ form.special_requests }}
-                    {% if form.special_requests.errors %}
+                    {{ form.confirmation_number }}
+                    {% if form.confirmation_number.errors %}
                         <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                            {{ form.special_requests.errors }}
+                            {{ form.confirmation_number.errors }}
                         </div>
                     {% endif %}
                 </div>
@@ -200,7 +281,10 @@
         const checkInDate = document.querySelector('#id_check_in_date');
         const checkOutDate = document.querySelector('#id_check_out_date');
         const roomSelect = document.querySelector('#id_room');
+        const ratePlanSelect = document.querySelector('#id_rate_plan');
         const totalAmountField = document.querySelector('#id_total_amount');
+        const adultsField = document.querySelector('#id_number_of_adults');
+        const childrenField = document.querySelector('#id_number_of_children');
         
         function calculateTotal() {
             if (checkInDate.value && checkOutDate.value && roomSelect.value) {
@@ -209,17 +293,54 @@
                 const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
                 
                 if (nights > 0) {
-                    // Get room price from the selected option (you might need to pass this data)
-                    // For now, we'll let the backend handle the calculation
-                    totalAmountField.style.backgroundColor = '#fff3cd';
-                    totalAmountField.placeholder = 'Will be calculated automatically';
+                    // Make AJAX call to get calculated amount
+                    const formData = new FormData();
+                    formData.append('check_in_date', checkInDate.value);
+                    formData.append('check_out_date', checkOutDate.value);
+                    formData.append('room', roomSelect.value);
+                    formData.append('rate_plan', ratePlanSelect.value || '');
+                    formData.append('number_of_adults', adultsField.value || '1');
+                    formData.append('number_of_children', childrenField.value || '0');
+                    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+                    
+                    fetch('/bookings/calculate-amount/', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.total_amount) {
+                            totalAmountField.value = data.total_amount;
+                            totalAmountField.style.backgroundColor = '#d4edda';
+                            
+                            // Show calculation details
+                            const helpText = totalAmountField.parentNode.querySelector('small');
+                            if (helpText) {
+                                helpText.textContent = `${nights} nights × ₹${data.rate_per_night} = ₹${data.total_amount}`;
+                                helpText.style.color = '#28a745';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error calculating amount:', error);
+                        totalAmountField.style.backgroundColor = '#fff3cd';
+                        totalAmountField.placeholder = 'Will be calculated on save';
+                    });
                 }
             }
         }
         
-        checkInDate.addEventListener('change', calculateTotal);
-        checkOutDate.addEventListener('change', calculateTotal);
-        roomSelect.addEventListener('change', calculateTotal);
+        // Add event listeners
+        [checkInDate, checkOutDate, roomSelect, ratePlanSelect, adultsField, childrenField].forEach(field => {
+            if (field) {
+                field.addEventListener('change', calculateTotal);
+            }
+        });
+        
+        // Calculate on page load if editing
+        if (checkInDate.value && checkOutDate.value && roomSelect.value) {
+            calculateTotal();
+        }
     });
 </script>
 {% endblock %}

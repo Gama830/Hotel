@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.booking_list, name='booking-list'),
     path('create/', views.booking_create, name='booking-create'),
     path('search/', views.room_availability_search, name='room-availability-search'),
+    path('calculate-amount/', views.calculate_booking_amount, name='calculate-booking-amount'),
     path('<int:booking_id>/', views.booking_detail, name='booking-detail'),
     path('<int:booking_id>/edit/', views.booking_update, name='booking-update'),
     path('<int:booking_id>/delete/', views.booking_delete, name='booking-delete'),
