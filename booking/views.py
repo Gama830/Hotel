@@ -60,6 +60,16 @@ def booking_create(request):
         form = BookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
+            
+            # Handle reservation source from search
+            reservation_source_id = request.POST.get('reservation_source_id')
+            if reservation_source_id:
+                try:
+                    from .models import ReservationSource
+                    booking.reservation_source = ReservationSource.objects.get(id=reservation_source_id, is_active=True)
+                except ReservationSource.DoesNotExist:
+                    pass
+            
             # Calculate total amount
             booking.total_amount = booking.calculate_total_amount()
             booking.save()
@@ -85,6 +95,18 @@ def booking_update(request, booking_id):
         form = BookingForm(request.POST, instance=booking)
         if form.is_valid():
             booking = form.save(commit=False)
+            
+            # Handle reservation source from search
+            reservation_source_id = request.POST.get('reservation_source_id')
+            if reservation_source_id:
+                try:
+                    from .models import ReservationSource
+                    booking.reservation_source = ReservationSource.objects.get(id=reservation_source_id, is_active=True)
+                except ReservationSource.DoesNotExist:
+                    booking.reservation_source = None
+            else:
+                booking.reservation_source = None
+            
             # Recalculate total amount if dates or room changed
             booking.total_amount = booking.calculate_total_amount()
             booking.save()
@@ -269,3 +291,23 @@ def calculate_booking_amount(request):
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+def reservation_sources_api(request):
+    """API endpoint to fetch reservation sources for search"""
+    from .models import ReservationSource
+    
+    sources = ReservationSource.objects.filter(is_active=True).order_by('name')
+    
+    sources_data = []
+    for source in sources:
+        sources_data.append({
+            'id': source.id,
+            'source_id': source.source_id,
+            'name': source.name,
+            'source_type': source.source_type,
+            'source_type_display': source.get_source_type_display(),
+            'contact_person': source.contact_person,
+            'is_active': source.is_active
+        })
+    
+    return JsonResponse(sources_data, safe=False)

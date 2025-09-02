@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 from guest.models import Guest
 from rooms.models import Room
@@ -58,6 +58,26 @@ class Booking(models.Model):
         blank=True,
         related_name='bookings',
         help_text="Rate Plan applied to this booking"
+    )
+    
+    # Reservation Source
+    reservation_source = models.ForeignKey(
+        'ReservationSource',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='bookings',
+        help_text="Reservation source (OTA, website, etc.)"
+    )
+    
+    # Corporate/Agent
+    corporate_agent = models.ForeignKey(
+        'CorporateAgent',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='bookings',
+        help_text="Corporate client or travel agent"
     )
     
     # Date and Time fields
@@ -290,3 +310,296 @@ class Booking(models.Model):
             duration = self.actual_check_out_time - self.actual_check_in_time
             return duration.total_seconds() / 3600
         return None
+
+class ReservationSource(models.Model):
+    """Model for managing reservation sources like OTAs, websites, etc."""
+    
+    SOURCE_TYPE_CHOICES = [
+        ('OTA', 'Online Travel Agency'),
+        ('WEBSITE', 'Website'),
+        ('AGENT', 'Travel Agent'),
+        ('CORPORATE', 'Corporate'),
+        ('DIRECT', 'Direct'),
+        ('PHONE', 'Phone'),
+        ('EMAIL', 'Email'),
+        ('WALK_IN', 'Walk-in'),
+        ('OTHER', 'Other'),
+    ]
+    
+    source_id = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text="Unique source identifier"
+    )
+    
+    name = models.CharField(
+        max_length=100,
+        help_text="Source name (e.g., Booking.com, Expedia, Company Website)"
+    )
+    
+    source_type = models.CharField(
+        max_length=20,
+        choices=SOURCE_TYPE_CHOICES,
+        default='OTHER',
+        help_text="Type of reservation source"
+    )
+    
+    contact_person = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Contact person name"
+    )
+    
+    email = models.EmailField(
+        blank=True,
+        null=True,
+        help_text="Contact email"
+    )
+    
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Contact phone number"
+    )
+    
+    address = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Contact address"
+    )
+    
+    commission_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Commission rate percentage (0-100)"
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this source is currently active"
+    )
+    
+    website_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Website URL"
+    )
+    
+    notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Additional notes about this source"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Reservation Source'
+        verbose_name_plural = 'Reservation Sources'
+    
+    def __str__(self):
+        return f"{self.source_id} - {self.name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.source_id:
+            prefix = self.source_type[:3].upper()
+            count = ReservationSource.objects.filter(source_type=self.source_type).count() + 1
+            self.source_id = f"{prefix}{count:04d}"
+        super().save(*args, **kwargs)
+
+
+class CorporateAgent(models.Model):
+    """Model for managing corporate clients and travel agents"""
+    
+    AGENT_TYPE_CHOICES = [
+        ('CORPORATE', 'Corporate Client'),
+        ('AGENT', 'Travel Agent'),
+        ('TOUR_OPERATOR', 'Tour Operator'),
+        ('EVENT_PLANNER', 'Event Planner'),
+        ('WEDDING_PLANNER', 'Wedding Planner'),
+        ('OTHER', 'Other'),
+    ]
+    
+    PAYMENT_TERMS_CHOICES = [
+        ('IMMEDIATE', 'Immediate Payment'),
+        ('NET_7', 'Net 7 Days'),
+        ('NET_15', 'Net 15 Days'),
+        ('NET_30', 'Net 30 Days'),
+        ('NET_45', 'Net 45 Days'),
+        ('NET_60', 'Net 60 Days'),
+        ('ADVANCE', 'Advance Payment Required'),
+    ]
+    
+    agent_id = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text="Unique corporate/agent identifier"
+    )
+    
+    name = models.CharField(
+        max_length=150,
+        help_text="Corporate/Agent name"
+    )
+    
+    agent_type = models.CharField(
+        max_length=20,
+        choices=AGENT_TYPE_CHOICES,
+        default='CORPORATE',
+        help_text="Type of corporate client or agent"
+    )
+    
+    contact_person = models.CharField(
+        max_length=100,
+        help_text="Primary contact person name"
+    )
+    
+    designation = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Contact person designation"
+    )
+    
+    address = models.TextField(
+        help_text="Complete address"
+    )
+    
+    city = models.CharField(
+        max_length=100,
+        help_text="City"
+    )
+    
+    state = models.CharField(
+        max_length=100,
+        help_text="State/Province"
+    )
+    
+    country = models.CharField(
+        max_length=100,
+        default='India',
+        help_text="Country"
+    )
+    
+    postal_code = models.CharField(
+        max_length=20,
+        help_text="Postal/ZIP code"
+    )
+    
+    phone = models.CharField(
+        max_length=20,
+        help_text="Primary phone number"
+    )
+    
+    mobile = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Mobile number"
+    )
+    
+    email = models.EmailField(
+        help_text="Primary email address"
+    )
+    
+    website = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Website URL"
+    )
+    
+    business_registration = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Business registration number"
+    )
+    
+    gstin = models.CharField(
+        max_length=15,
+        blank=True,
+        null=True,
+        help_text="GSTIN (if applicable)"
+    )
+    
+    pan_number = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="PAN number"
+    )
+    
+    contracted_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text="Special contracted rate per night"
+    )
+    
+    commission_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Commission rate percentage (0-100)"
+    )
+    
+    credit_limit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text="Credit limit amount"
+    )
+    
+    payment_terms = models.CharField(
+        max_length=20,
+        choices=PAYMENT_TERMS_CHOICES,
+        default='NET_30',
+        help_text="Payment terms"
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this corporate/agent is currently active"
+    )
+    
+    notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Additional notes"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Corporate/Agent'
+        verbose_name_plural = 'Corporate/Agents'
+    
+    def __str__(self):
+        return f"{self.agent_id} - {self.name}"
+    
+    @property
+    def full_address(self):
+        """Return formatted full address"""
+        address_parts = [
+            self.address,
+            self.city,
+            self.state,
+            self.postal_code,
+            self.country
+        ]
+        return ", ".join([part for part in address_parts if part])
+    
+    def save(self, *args, **kwargs):
+        if not self.agent_id:
+            prefix = self.agent_type[:3].upper()
+            count = CorporateAgent.objects.filter(agent_type=self.agent_type).count() + 1
+            self.agent_id = f"{prefix}{count:04d}"
+        super().save(*args, **kwargs)
