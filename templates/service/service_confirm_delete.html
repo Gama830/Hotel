@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px; max-width: 600px; margin: 0 auto;">
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="font-size: 4rem; color: #dc3545; margin-bottom: 20px;">🗑️</div>
+            <h2 style="color: #dc3545; margin-bottom: 10px;">Delete Service</h2>
+            <p style="color: #666; font-size: 16px;">Are you sure you want to delete this service?</p>
+        </div>
+
+        <!-- Service Information -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+            <h4 style="color: #333; margin-bottom: 15px;">Service Details:</h4>
+            <div style="display: grid; gap: 10px;">
+                <div><strong>Service ID:</strong> {{ service.service_id }}</div>
+                <div><strong>Service Name:</strong> {{ service.service_name }}</div>
+                <div><strong>Rate/Cost:</strong> ₹{{ service.rate_cost }}</div>
+                <div><strong>Status:</strong> 
+                    <span style="padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;
+                                 {% if service.is_active %}background: #d4edda; color: #155724;{% else %}background: #f8d7da; color: #721c24;{% endif %}">
+                        {% if service.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                {% if service.description %}
+                <div><strong>Description:</strong> {{ service.description|truncatechars:100 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Warning Message -->
+        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-bottom: 30px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.5rem;">⚠️</span>
+                <div>
+                    <strong style="color: #856404;">Warning:</strong>
+                    <p style="color: #856404; margin: 5px 0 0 0; font-size: 14px;">
+                        This action cannot be undone. The service will be permanently removed from the system.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <form method="post" style="display: flex; gap: 15px; justify-content: center;">
+            {% csrf_token %}
+            <a href="{% url 'service-detail' service.id %}" 
+               style="background: #6c757d; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                ❌ Cancel
+            </a>
+            <button type="submit" 
+                    style="background: #dc3545; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;"
+                    onclick="return confirm('Are you absolutely sure you want to delete {{ service.service_name }}?')">
+                🗑️ Yes, Delete Service
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

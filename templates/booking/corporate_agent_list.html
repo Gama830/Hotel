@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #333; margin: 0;">🏢 Corporate/Agents</h1>
+        <a href="{% url 'corporate-agent-create' %}" 
+           style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            ➕ Add New Corporate/Agent
+        </a>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <form method="get" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Search Corporate/Agents:</label>
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Search by name, ID, contact person, email, or city..."
+                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Type:</label>
+                <select name="agent_type" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">All Types</option>
+                    {% for value, label in agent_type_choices %}
+                        <option value="{{ value }}" {% if agent_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                    🔍 Search
+                </button>
+                <a href="{% url 'corporate-agent-list' %}" style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-left: 10px;">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div style="margin-bottom: 20px;">
+        <p style="color: #666; margin: 0;">
+            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ total_agents }} corporate/agents
+        </p>
+    </div>
+
+    <!-- Agents List -->
+    <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+        {% if page_obj %}
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Agent ID</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Name</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Type</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Contact</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Location</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Commission</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 1px solid #dee2e6;">Status</th>
+                        <th style="padding: 15px; text-align: center; border-bottom: 1px solid #dee2e6;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agent in page_obj %}
+                        <tr style="border-bottom: 1px solid #f1f1f1;">
+                            <td style="padding: 15px;">
+                                <strong>{{ agent.agent_id }}</strong>
+                            </td>
+                            <td style="padding: 15px;">
+                                <strong>{{ agent.name }}</strong>
+                                {% if agent.website %}
+                                    <br><small><a href="{{ agent.website }}" target="_blank" style="color: #007bff;">🌐 Website</a></small>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 15px;">
+                                <span style="padding: 4px 8px; background: #e9ecef; border-radius: 4px; font-size: 12px;">
+                                    {{ agent.get_agent_type_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 15px;">
+                                <strong>{{ agent.contact_person }}</strong>
+                                {% if agent.designation %}<br><small>{{ agent.designation }}</small>{% endif %}
+                                <br>📧 {{ agent.email }}
+                                <br>📞 {{ agent.phone }}
+                                {% if agent.mobile %}<br>📱 {{ agent.mobile }}{% endif %}
+                            </td>
+                            <td style="padding: 15px;">
+                                {{ agent.city }}, {{ agent.state }}
+                                <br><small>{{ agent.country }}</small>
+                            </td>
+                            <td style="padding: 15px;">
+                                {% if agent.commission_rate > 0 %}
+                                    <strong style="color: #28a745;">{{ agent.commission_rate }}%</strong>
+                                {% else %}
+                                    <span style="color: #6c757d;">No Commission</span>
+                                {% endif %}
+                                {% if agent.contracted_rate > 0 %}
+                                    <br><small>Rate: ₹{{ agent.contracted_rate }}</small>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 15px;">
+                                {% if agent.is_active %}
+                                    <span style="color: #28a745; font-weight: bold;">✅ Active</span>
+                                {% else %}
+                                    <span style="color: #dc3545; font-weight: bold;">❌ Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 15px; text-align: center;">
+                                <a href="{% url 'corporate-agent-detail' agent.id %}" 
+                                   style="background: #17a2b8; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px; margin-right: 5px;">
+                                    👁️ View
+                                </a>
+                                <a href="{% url 'corporate-agent-update' agent.id %}" 
+                                   style="background: #ffc107; color: #212529; padding: 6px 12px; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                    ✏️ Edit
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: #666;">
+                <h3>No corporate/agents found</h3>
+                <p>{% if search_query %}No corporate/agents match your search criteria.{% else %}Start by adding your first corporate client or agent.{% endif %}</p>
+                <a href="{% url 'corporate-agent-create' %}" 
+                   style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 10px; display: inline-block;">
+                    ➕ Add First Corporate/Agent
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div style="margin-top: 20px; text-align: center;">
+            <div style="display: inline-flex; gap: 5px;">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if agent_type_filter %}&agent_type={{ agent_type_filter }}{% endif %}" 
+                       style="padding: 8px 12px; background: #f8f9fa; border: 1px solid #dee2e6; text-decoration: none; border-radius: 4px;">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if agent_type_filter %}&agent_type={{ agent_type_filter }}{% endif %}" 
+                       style="padding: 8px 12px; background: #f8f9fa; border: 1px solid #dee2e6; text-decoration: none; border-radius: 4px;">Previous</a>
+                {% endif %}
+                
+                <span style="padding: 8px 12px; background: #007bff; color: white; border-radius: 4px;">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if agent_type_filter %}&agent_type={{ agent_type_filter }}{% endif %}" 
+                       style="padding: 8px 12px; background: #f8f9fa; border: 1px solid #dee2e6; text-decoration: none; border-radius: 4px;">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if agent_type_filter %}&agent_type={{ agent_type_filter }}{% endif %}" 
+                       style="padding: 8px 12px; background: #f8f9fa; border: 1px solid #dee2e6; text-decoration: none; border-radius: 4px;">Last</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

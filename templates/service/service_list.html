@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}" />
+<link rel="stylesheet" href="{% static 'css/lists.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">🛎️ Services</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'service-bill-generic' %}" class="btn btn-success">
+                💳 Bill Customer
+            </a>
+            <a href="{% url 'service-create' %}" class="btn btn-success">
+                ➕ Add New Service
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-form">
+        <form method="GET" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label class="form-label">Search Services:</label>
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Search by name, ID, or description..."
+                       class="search-input">
+            </div>
+            <div>
+                <label class="form-label">Availability:</label>
+                <select name="availability" class="search-select">
+                    <option value="">All Availabilities</option>
+                    {% for value, label in availability_choices %}
+                        <option value="{{ value }}" {% if availability_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Status:</label>
+                <select name="is_active" class="search-select">
+                    <option value="">All Services</option>
+                    <option value="true" {% if active_filter == 'true' %}selected{% endif %}>Active Only</option>
+                    <option value="false" {% if active_filter == 'false' %}selected{% endif %}>Inactive Only</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">🔍 Search</button>
+                {% if search_query or availability_filter or active_filter %}
+                <a href="{% url 'service-list' %}" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+        {% if search_query %}
+            Found {{ total_services }} service{{ total_services|pluralize }} matching "{{ search_query }}"
+        {% else %}
+            Total {{ total_services }} service{{ total_services|pluralize }}
+        {% endif %}
+    </div>
+
+    <!-- Services Table -->
+    <div class="table-container">
+        {% if page_obj %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service ID</th>
+                        <th>Service Name</th>
+                        <th>Billing</th>
+                        <th>Availability</th>
+                        <th>Status</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in page_obj %}
+                    <tr>
+                        <td><strong>{{ service.service_id }}</strong></td>
+                        <td>
+                            <strong>{{ service.service_name }}</strong>
+                            {% if service.description %}
+                                <br><small style="color: #666;">{{ service.description|truncatechars:50 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge" style="background: #e3f2fd; color: #1565c0;">
+                                💳 Direct Billing
+                            </span>
+                            <br><small style="color: #666;">Pricing set during billing</small>
+                        </td>
+                        <td>
+                            <span style="font-size: 12px;">{{ service.get_availability_display }}</span>
+                            {% if service.requires_booking %}
+                                <br><small style="color: #dc3545;">📅 Booking Required</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if service.is_active %}
+                                <span class="status-active">✅ Active</span>
+                            {% else %}
+                                <span class="status-inactive">❌ Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'service-detail' service.id %}" class="btn btn-info btn-sm">👁️ View</a>
+                            <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                            <a href="{% url 'service-bill' service.id %}" class="btn btn-success btn-sm">💳 Bill</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <h3>No services found</h3>
+                <p>{% if search_query %}No services match your search criteria.{% else %}Start by adding your first service.{% endif %}</p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <a href="{% url 'service-create' %}" class="btn btn-success">➕ Add First Service</a>
+                    <a href="{% url 'service-bill-generic' %}" class="btn btn-success">💳 Bill Customer</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}{% if active_filter %}&is_active={{ active_filter }}{% endif %}" 
+                   class="pagination-link">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}{% if active_filter %}&is_active={{ active_filter }}{% endif %}" 
+                   class="pagination-link">Previous</a>
+            {% endif %}
+            
+            <span class="pagination-current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}{% if active_filter %}&is_active={{ active_filter }}{% endif %}" 
+                   class="pagination-link">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}{% if active_filter %}&is_active={{ active_filter }}{% endif %}" 
+                   class="pagination-link">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

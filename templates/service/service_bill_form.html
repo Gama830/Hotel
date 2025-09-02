@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'service-list' %}" class="btn btn-secondary">
+            ← Back to Services
+        </a>
+    </div>
+
+    {% if service_instance %}
+    <div class="card" style="margin-bottom: 30px;">
+        <div class="card-body">
+            <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                🛎️ Service Information
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Service Name:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">{{ service_instance.service_name }}</p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Base Rate:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        <span style="color: #28a745; font-weight: bold;">₹{{ service_instance.rate_cost }}</span>
+                    </p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Tax Status:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        {% if service_instance.tax_applicable %}
+                            <span style="color: #ffc107;">Tax Applicable</span>
+                        {% else %}
+                            <span style="color: #28a745;">No Tax</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Service & Room Selection -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    🛎️ Service & Room Selection
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.service.label }}</label>
+                        {{ form.service }}
+                        {% if form.service.help_text %}
+                            <small class="form-help">{{ form.service.help_text }}</small>
+                        {% endif %}
+                        {% if form.service.errors %}
+                            <div class="form-error">{{ form.service.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.room_number.label }}</label>
+                        {{ form.room_number }}
+                        {% if form.room_number.help_text %}
+                            <small class="form-help">{{ form.room_number.help_text }}</small>
+                        {% endif %}
+                        {% if form.room_number.errors %}
+                            <div class="form-error">{{ form.room_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Information (Auto-filled) -->
+            <div class="form-section" id="guest-info-section" style="display: none;">
+                <h3 class="section-title">
+                    👤 Guest Information
+                </h3>
+                <div id="guest-details" class="card" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <!-- Guest details will be populated here via JavaScript -->
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.guest.label }}</label>
+                        {{ form.guest }}
+                        {% if form.guest.help_text %}
+                            <small class="form-help">{{ form.guest.help_text }}</small>
+                        {% endif %}
+                        {% if form.guest.errors %}
+                            <div class="form-error">{{ form.guest.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.booking.label }}</label>
+                        {{ form.booking }}
+                        {% if form.booking.help_text %}
+                            <small class="form-help">{{ form.booking.help_text }}</small>
+                        {% endif %}
+                        {% if form.booking.errors %}
+                            <div class="form-error">{{ form.booking.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    💰 Pricing Details
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.quantity.label }}</label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                            <div class="form-error">{{ form.quantity.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.unit_price.label }}</label>
+                        {{ form.unit_price }}
+                        {% if form.unit_price.errors %}
+                            <div class="form-error">{{ form.unit_price.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Price per unit in ₹</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.tax_rate.label }}</label>
+                        {{ form.tax_rate }}
+                        {% if form.tax_rate.errors %}
+                            <div class="form-error">{{ form.tax_rate.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Tax percentage (e.g., 18 for 18%)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📝 Additional Details
+                </h3>
+                <div class="form-group">
+                    <label class="form-label">{{ form.notes.label }}</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="form-error">{{ form.notes.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Optional billing notes or special instructions</small>
+                </div>
+            </div>
+
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
+                    💳 Create Charge
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roomSelect = document.getElementById('id_room_number');
+    const guestSelect = document.getElementById('id_guest');
+    const bookingSelect = document.getElementById('id_booking');
+    const guestInfoSection = document.getElementById('guest-info-section');
+    const guestDetails = document.getElementById('guest-details');
+    
+    // Handle room selection change
+    roomSelect.addEventListener('change', function() {
+        const roomId = this.value;
+        
+        if (roomId) {
+            // Show loading state
+            guestDetails.innerHTML = '<div style="text-align: center; color: #666;"><i>Loading guest information...</i></div>';
+            guestInfoSection.style.display = 'block';
+            
+            // Fetch guest information for the selected room
+            fetch(`/services/get-room-guest-info/${roomId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Populate guest details
+                        guestDetails.innerHTML = `
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Guest Name:</label>
+                                    <p style="margin: 0; padding: 10px; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                                        ${data.guest.full_name}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Phone:</label>
+                                    <p style="margin: 0; padding: 10px; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                                        ${data.guest.phone_number || 'Not provided'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Email:</label>
+                                    <p style="margin: 0; padding: 10px; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                                        ${data.guest.email || 'Not provided'}
+                                    </p>
+                                </div>
+                            </div>
+                            ${data.booking ? `
+                                <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196f3;">
+                                    <strong>Booking Information:</strong><br>
+                                    Booking ID: ${data.booking.id} | Check-in: ${data.booking.check_in_date} | Check-out: ${data.booking.check_out_date}
+                                </div>
+                            ` : ''}
+                        `;
+                        
+                        // Auto-select guest and booking
+                        guestSelect.value = data.guest.id;
+                        if (data.booking) {
+                            bookingSelect.value = data.booking.id;
+                        }
+                        
+                        // Enable the fields
+                        guestSelect.disabled = false;
+                        bookingSelect.disabled = false;
+                        
+                    } else {
+                        guestDetails.innerHTML = `
+                            <div style="text-align: center; color: #dc3545;">
+                                <strong>⚠️ No guest information found for this room</strong><br>
+                                <small>${data.message || 'This room may not have an active check-in.'}</small>
+                                ${data.debug ? `<br><small style="color: #666;">Debug: Room ${data.debug.room_number}, Status: ${data.debug.room_status}, Check-ins: ${data.debug.total_checkins_for_room}</small>` : ''}
+                            </div>
+                        `;
+                        
+                        // Clear selections
+                        guestSelect.value = '';
+                        bookingSelect.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching guest info:', error);
+                    guestDetails.innerHTML = `
+                        <div style="text-align: center; color: #dc3545;">
+                            <strong>❌ Error loading guest information</strong><br>
+                            <small>Please try again or select guest manually.</small>
+                        </div>
+                    `;
+                });
+        } else {
+            // Hide guest info section if no room selected
+            guestInfoSection.style.display = 'none';
+            guestSelect.value = '';
+            bookingSelect.value = '';
+            guestSelect.disabled = true;
+            bookingSelect.disabled = true;
+        }
+    });
+    
+    // Initialize form state
+    if (!roomSelect.value) {
+        guestSelect.disabled = true;
+        bookingSelect.disabled = true;
+    }
+});
+</script>
+{% endblock %}
+
+

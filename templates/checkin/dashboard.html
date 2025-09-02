@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}" />
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">🏨 Check-In Dashboard</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'quick-checkin' %}" class="btn btn-success">
+                ⚡ Quick Check-In
+            </a>
+            <a href="{% url 'checkin-create' %}" class="btn btn-success">
+                ➕ New Check-In
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🏨</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ total_checkins }}</div>
+                <div class="stat-label">Total Check-Ins</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ todays_checkins }}</div>
+                <div class="stat-label">Today's Check-Ins</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💳</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ pending_payments }}</div>
+                <div class="stat-label">Pending Payments</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🆔</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ unverified_ids }}</div>
+                <div class="stat-label">Unverified IDs</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-content">
+                <div class="stat-number">{{ available_rooms }}</div>
+                <div class="stat-label">Available Rooms</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 30px;">
+        <!-- Today's Check-Ins -->
+        <div class="card">
+            <div class="card-body">
+                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                    📅 Today's Check-Ins ({{ todays_checkins }})
+                </h3>
+                
+                {% if todays_checkin_list %}
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        {% for checkin in todays_checkin_list %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee;">
+                            <div>
+                                <div style="font-weight: 600; color: #333;">
+                                    {{ checkin.guest.full_name }} - Room {{ checkin.room_number.room_number }}
+                                </div>
+                                <div style="font-size: 12px; color: #666;">
+                                    {{ checkin.check_in_id }} • {{ checkin.actual_check_in_date_time|time:"H:i" }}
+                                    {% if checkin.is_walk_in %}
+                                        • 🚶 Walk-in
+                                    {% else %}
+                                        • 📋 Booking
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="status-badge" style="background: 
+                                    {% if checkin.payment_status == 'PAID' %}#d4edda; color: #155724;{% elif checkin.payment_status == 'PARTIAL' %}#fff3cd; color: #856404;{% else %}#f8d7da; color: #721c24;{% endif %}">
+                                    {{ checkin.get_payment_status_display }}
+                                </span>
+                                <br>
+                                <a href="{% url 'checkin-detail' checkin.id %}" class="btn btn-info btn-sm" style="margin-top: 5px;">View</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="text-align: center; color: #666; padding: 40px;">No check-ins today</p>
+                {% endif %}
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="{% url 'checkin-list' %}?date_range=today" class="btn btn-primary">View All Today's Check-Ins</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+            <!-- Payment Status Summary -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-body">
+                    <h4 style="color: #333; margin-bottom: 15px;">💳 Payment Status</h4>
+                    {% for status in payment_summary %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="color: #666;">{{ status.payment_status|capfirst }}</span>
+                        <span style="font-weight: bold; color: 
+                            {% if status.payment_status == 'PAID' %}#28a745{% elif status.payment_status == 'PARTIAL' %}#ffc107{% else %}#dc3545{% endif %}">
+                            {{ status.count }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-body">
+                    <h4 style="color: #333; margin-bottom: 15px;">⚡ Quick Actions</h4>
+                    
+                    <a href="{% url 'quick-checkin' %}" class="btn btn-success" style="width: 100%; margin-bottom: 10px;">
+                        🚶 Walk-in Check-In
+                    </a>
+                    
+                    <a href="{% url 'checkin-create' %}" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">
+                        📋 Booking Check-In
+                    </a>
+                    
+                    <a href="{% url 'checkin-list' %}?payment_status=PENDING" class="btn btn-warning" style="width: 100%; margin-bottom: 10px;">
+                        💳 Pending Payments
+                    </a>
+                    
+                    <a href="{% url 'checkin-list' %}?id_verified=false" class="btn btn-info" style="width: 100%;">
+                        🆔 Verify IDs
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 style="color: #333; margin-bottom: 15px;">🕒 Recent Check-Ins</h4>
+                    {% if recent_checkins %}
+                        {% for checkin in recent_checkins|slice:":5" %}
+                        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                            <div style="font-weight: 600; font-size: 14px;">{{ checkin.guest.full_name }}</div>
+                            <div style="font-size: 12px; color: #666;">
+                                Room {{ checkin.room_number.room_number }} • {{ checkin.actual_check_in_date_time|date:"M d" }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div style="text-align: center; margin-top: 15px;">
+                            <a href="{% url 'checkin-list' %}" class="btn btn-sm btn-secondary">View All</a>
+                        </div>
+                    {% else %}
+                        <p style="text-align: center; color: #666; font-size: 14px;">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

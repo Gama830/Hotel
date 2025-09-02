@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'checkin-list' %}" class="btn btn-secondary">
+            ← Back to Check-Ins
+        </a>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Guest & Room -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    👤 Guest & Room
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.guest.label }}</label>
+                        {{ form.guest }}
+                        {% if form.guest.errors %}
+                            <div class="form-error">{{ form.guest.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.room_number.label }}</label>
+                        {{ form.room_number }}
+                        {% if form.room_number.errors %}
+                            <div class="form-error">{{ form.room_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stay Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📅 Stay Details
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.number_of_guests.label }}</label>
+                        {{ form.number_of_guests }}
+                        {% if form.number_of_guests.errors %}
+                            <div class="form-error">{{ form.number_of_guests.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.expected_check_out_date.label }}</label>
+                        {{ form.expected_check_out_date }}
+                        {% if form.expected_check_out_date.errors %}
+                            <div class="form-error">{{ form.expected_check_out_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    💳 Payment
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.total_amount.label }}</label>
+                        {{ form.total_amount }}
+                        {% if form.total_amount.errors %}
+                            <div class="form-error">{{ form.total_amount.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Total amount for the stay</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.advance_payment.label }}</label>
+                        {{ form.advance_payment }}
+                        {% if form.advance_payment.errors %}
+                            <div class="form-error">{{ form.advance_payment.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Amount received now</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 30px;">
+    <div class="card-body">
+        <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            ℹ️ Quick Check-In Information
+        </h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4 style="color: #28a745;">✅ What's Included:</h4>
+                <ul style="color: #666; margin-left: 20px;">
+                    <li>Automatic check-in ID generation</li>
+                    <li>Room status updated to "Occupied"</li>
+                    <li>Payment status set to "Pending"</li>
+                    <li>ID verification can be done later</li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="color: #ffc107;">⚠️ Remember To:</h4>
+                <ul style="color: #666; margin-left: 20px;">
+                    <li>Verify guest ID after check-in</li>
+                    <li>Collect remaining payment if applicable</li>
+                    <li>Assign staff member if needed</li>
+                    <li>Add any special notes or requests</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

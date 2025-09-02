@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'housekeeping-task-detail' task.id %}" class="btn btn-secondary">
+            ← Back to Task
+        </a>
+    </div>
+
+    <!-- Task Information Card -->
+    <div class="card" style="margin-bottom: 30px;">
+        <div class="card-body">
+            <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                📋 Current Task Information
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Room:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        <strong>Room {{ task.room.room_number }}</strong> ({{ task.room.room_type }})
+                    </p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Task Type:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">{{ task.get_task_type_display }}</p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Current Status:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        <span class="status-badge status-{{ task.task_status|lower }}">
+                            {{ task.get_task_status_display }}
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Priority:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        <span class="status-badge" style="background: 
+                            {% if task.priority == 'URGENT' %}#dc3545{% elif task.priority == 'HIGH' %}#fd7e14{% elif task.priority == 'MEDIUM' %}#ffc107{% else %}#28a745{% endif %}20; 
+                            color: {% if task.priority == 'URGENT' %}#dc3545{% elif task.priority == 'HIGH' %}#fd7e14{% elif task.priority == 'MEDIUM' %}#ffc107{% else %}#28a745{% endif %};">
+                            {{ task.get_priority_display }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Status Update -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    🔄 Status Update
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.task_status.label }}</label>
+                        {{ form.task_status }}
+                        {% if form.task_status.errors %}
+                            <div class="form-error">{{ form.task_status.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.assigned_to.label }}</label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                            <div class="form-error">{{ form.assigned_to.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.actual_duration.label }}</label>
+                        {{ form.actual_duration }}
+                        {% if form.actual_duration.errors %}
+                            <div class="form-error">{{ form.actual_duration.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Actual time taken in minutes</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">{{ form.notes.label }}</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="form-error">{{ form.notes.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Add any notes about this status update</small>
+                </div>
+            </div>
+
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

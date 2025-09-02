@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}" />
+<link rel="stylesheet" href="{% static 'css/lists.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">📋 Housekeeping Tasks</h1>
+        <a href="{% url 'housekeeping-task-create' %}" class="btn btn-success">
+            ➕ New Task
+        </a>
+    </div>
+
+    <!-- Search and Filter Form -->
+    <div class="search-form">
+        <form method="GET" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label class="form-label">Search Tasks:</label>
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Search by room, task type, or staff..."
+                       class="search-input">
+            </div>
+            <div>
+                <label class="form-label">Status:</label>
+                <select name="status" class="search-select">
+                    <option value="">All Statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Priority:</label>
+                <select name="priority" class="search-select">
+                    <option value="">All Priorities</option>
+                    {% for value, label in priority_choices %}
+                        <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Date:</label>
+                <select name="date" class="search-select">
+                    <option value="">All Dates</option>
+                    <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="tomorrow" {% if date_filter == 'tomorrow' %}selected{% endif %}>Tomorrow</option>
+                    <option value="overdue" {% if date_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">🔍 Filter</button>
+                {% if search_query or status_filter or priority_filter or date_filter %}
+                <a href="{% url 'housekeeping-task-list' %}" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+        Found {{ total_tasks }} task{{ total_tasks|pluralize }}
+        {% if search_query %}matching "{{ search_query }}"{% endif %}
+        {% if status_filter %}with status "{{ status_filter }}"{% endif %}
+    </div>
+
+    <!-- Tasks Table -->
+    <div class="table-container">
+        {% if page_obj %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Room</th>
+                        <th>Task Type</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th>Scheduled</th>
+                        <th>Duration</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in page_obj %}
+                        <tr {% if task.is_overdue %}style="background-color: #fff5f5;"{% endif %}>
+                            <td>
+                                <strong>Room {{ task.room.room_number }}</strong>
+                                <br><small style="color: {{ task.status.color_code }};">{{ task.status.display_name }}</small>
+                            </td>
+                            <td>{{ task.task_type }}</td>
+                            <td>
+                                <span class="status-badge" style="background: 
+                                    {% if task.priority == 'URGENT' %}#dc3545{% elif task.priority == 'HIGH' %}#fd7e14{% elif task.priority == 'MEDIUM' %}#ffc107{% else %}#28a745{% endif %}20; 
+                                    color: {% if task.priority == 'URGENT' %}#dc3545{% elif task.priority == 'HIGH' %}#fd7e14{% elif task.priority == 'MEDIUM' %}#ffc107{% else %}#28a745{% endif %};">
+                                    {{ task.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ task.task_status|lower }}">
+                                    {{ task.get_task_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ task.assigned_to|default:"Unassigned" }}</td>
+                            <td>
+                                {{ task.scheduled_date|date:"M d, Y" }}
+                                {% if task.scheduled_time %}
+                                    <br><small>{{ task.scheduled_time|time:"H:i" }}</small>
+                                {% endif %}
+                                {% if task.is_overdue %}
+                                    <br><small style="color: #dc3545;">⚠️ Overdue</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ task.duration_display }}</td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'housekeeping-task-detail' task.id %}" 
+                                   class="btn btn-info btn-sm">👁️ View</a>
+                                <a href="{% url 'housekeeping-task-update' task.id %}" 
+                                   class="btn btn-warning btn-sm">✏️ Edit</a>
+                                {% if task.task_status != 'COMPLETED' %}
+                                <a href="{% url 'housekeeping-task-update-status' task.id %}" 
+                                   class="btn btn-success btn-sm">🔄 Update</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <h3>No housekeeping tasks found</h3>
+                <p>{% if search_query %}No tasks match your search criteria.{% else %}Start by creating your first housekeeping task.{% endif %}</p>
+                <a href="{% url 'housekeeping-task-create' %}" class="btn btn-success">➕ Create First Task</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}" 
+                   class="pagination-link">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}" 
+                   class="pagination-link">Previous</a>
+            {% endif %}
+            
+            <span class="pagination-current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}" 
+                   class="pagination-link">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}" 
+                   class="pagination-link">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

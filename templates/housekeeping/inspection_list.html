@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}" />
+<link rel="stylesheet" href="{% static 'css/lists.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">🔍 Housekeeping Inspections</h1>
+        <a href="{% url 'housekeeping-inspection-create' %}" class="btn btn-success">
+            ➕ New Inspection
+        </a>
+    </div>
+
+    <!-- Search and Filter Form -->
+    <div class="search-form">
+        <form method="GET" class="search-grid-3">
+            <div>
+                <label class="form-label">Search Inspections:</label>
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Search by room or inspector..."
+                       class="search-input">
+            </div>
+            <div>
+                <label class="form-label">Status:</label>
+                <select name="status" class="search-select">
+                    <option value="">All Statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">🔍 Filter</button>
+                {% if search_query or status_filter %}
+                <a href="{% url 'housekeeping-inspection-list' %}" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+        Found {{ total_inspections }} inspection{{ total_inspections|pluralize }}
+        {% if search_query %}matching "{{ search_query }}"{% endif %}
+        {% if status_filter %}with status "{{ status_filter }}"{% endif %}
+    </div>
+
+    <!-- Inspections Table -->
+    <div class="table-container">
+        {% if page_obj %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Room</th>
+                        <th>Inspector</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Grade</th>
+                        <th>Date</th>
+                        <th>Follow-up</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inspection in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>Room {{ inspection.room.room_number }}</strong>
+                                {% if inspection.task %}
+                                    <br><small style="color: #666;">Task: {{ inspection.task.task_type }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ inspection.inspector_name }}</td>
+                            <td>
+                                <span class="status-badge status-{{ inspection.inspection_status|lower }}">
+                                    {{ inspection.get_inspection_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong>{{ inspection.cleanliness_score }}/10</strong>
+                                <br><small>({{ inspection.score_percentage }}%)</small>
+                            </td>
+                            <td>
+                                <span style="font-weight: bold; color: 
+                                    {% if inspection.score_grade == 'A+' or inspection.score_grade == 'A' %}#28a745{% elif inspection.score_grade == 'B' %}#ffc107{% else %}#dc3545{% endif %};">
+                                    {{ inspection.score_grade }}
+                                </span>
+                            </td>
+                            <td>{{ inspection.inspection_date|date:"M d, Y H:i" }}</td>
+                            <td>
+                                {% if inspection.follow_up_required %}
+                                    <span style="color: #dc3545;">⚠️ Required</span>
+                                    {% if inspection.follow_up_date %}
+                                        <br><small>{{ inspection.follow_up_date|date:"M d, Y" }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span style="color: #28a745;">✅ Not Required</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'housekeeping-inspection-detail' inspection.id %}" 
+                                   class="btn btn-info btn-sm">👁️ View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <h3>No inspections found</h3>
+                <p>{% if search_query %}No inspections match your search criteria.{% else %}Start by creating your first inspection.{% endif %}</p>
+                <a href="{% url 'housekeeping-inspection-create' %}" class="btn btn-success">➕ Create First Inspection</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="pagination-link">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="pagination-link">Previous</a>
+            {% endif %}
+            
+            <span class="pagination-current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="pagination-link">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
+                   class="pagination-link">Last</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

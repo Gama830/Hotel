@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+<link rel="stylesheet" href="{% static 'css/common.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1>🧹 Housekeeping Dashboard</h1>
+        <p>Manage room cleaning, maintenance, and inspections - {{ today|date:"F d, Y" }}</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <!-- Total Tasks -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon tasks" style="background: linear-gradient(135deg, #667eea, #764ba2);">📋</div>
+                <div>
+                    <div class="kpi-title">Total Tasks</div>
+                </div>
+            </div>
+            <div class="kpi-value">{{ total_tasks }}</div>
+            <div class="kpi-subtitle">All housekeeping tasks</div>
+        </div>
+
+        <!-- Pending Tasks -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon pending" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">⏳</div>
+                <div>
+                    <div class="kpi-title">Pending Tasks</div>
+                </div>
+            </div>
+            <div class="kpi-value">{{ pending_tasks }}</div>
+            <div class="kpi-subtitle">Awaiting completion</div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon progress" style="background: linear-gradient(135deg, #17a2b8, #20c997);">🔄</div>
+                <div>
+                    <div class="kpi-title">In Progress</div>
+                </div>
+            </div>
+            <div class="kpi-value">{{ in_progress_tasks }}</div>
+            <div class="kpi-subtitle">Currently being worked on</div>
+        </div>
+
+        <!-- Completed Today -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon completed" style="background: linear-gradient(135deg, #28a745, #20c997);">✅</div>
+                <div>
+                    <div class="kpi-title">Completed Today</div>
+                </div>
+            </div>
+            <div class="kpi-value">{{ completed_today }}</div>
+            <div class="kpi-subtitle">Tasks finished today</div>
+        </div>
+
+        <!-- Overdue Tasks -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon overdue" style="background: linear-gradient(135deg, #dc3545, #fd7e14);">⚠️</div>
+                <div>
+                    <div class="kpi-title">Overdue Tasks</div>
+                </div>
+            </div>
+            <div class="kpi-value">{{ overdue_tasks }}</div>
+            <div class="kpi-subtitle">Past due date</div>
+        </div>
+
+        <!-- Room Status Summary -->
+        <div class="kpi-card">
+            <div class="kpi-header">
+                <div class="kpi-icon rooms" style="background: linear-gradient(135deg, #6f42c1, #e83e8c);">🏨</div>
+                <div>
+                    <div class="kpi-title">Room Status</div>
+                </div>
+            </div>
+            <div class="room-status-grid">
+                {% for status in room_status_summary %}
+                <div class="status-item" style="background: {{ status.color_code }}20; color: {{ status.color_code }};">
+                    <div class="status-number">{{ status.task_count }}</div>
+                    <div class="status-label">{{ status.display_name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+        <!-- Today's Tasks -->
+        <div class="chart-section">
+            <h3 class="section-title">📅 Today's Tasks</h3>
+            <div class="booking-list">
+                {% for task in todays_tasks %}
+                <div class="booking-item">
+                    <div>
+                        <div class="booking-guest">Room {{ task.room.room_number }} - {{ task.task_type }}</div>
+                        <div class="booking-room">
+                            {{ task.get_priority_display }} Priority • {{ task.assigned_to|default:"Unassigned" }}
+                        </div>
+                        <div style="font-size: 11px; color: {{ task.status.color_code }};">{{ task.status.display_name }}</div>
+                    </div>
+                    <div>
+                        {% if task.scheduled_time %}
+                            <div class="booking-date">{{ task.scheduled_time|time:"H:i" }}</div>
+                        {% endif %}
+                        <span class="status-badge status-{{ task.task_status|lower }}">{{ task.get_task_status_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #666; padding: 20px;">No tasks scheduled for today</p>
+                {% endfor %}
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'housekeeping-task-list' %}?date=today" class="btn btn-primary">View All Today's Tasks</a>
+            </div>
+        </div>
+
+        <!-- Recent Inspections -->
+        <div class="info-section">
+            <h3 class="section-title">🔍 Recent Inspections</h3>
+            <div class="booking-list">
+                {% for inspection in recent_inspections %}
+                <div class="booking-item">
+                    <div>
+                        <div class="booking-guest">Room {{ inspection.room.room_number }}</div>
+                        <div class="booking-room">{{ inspection.inspector_name }} • Score: {{ inspection.cleanliness_score }}/10</div>
+                    </div>
+                    <div>
+                        <div class="booking-date">{{ inspection.inspection_date|date:"M d" }}</div>
+                        <span class="status-badge status-{{ inspection.inspection_status|lower }}">{{ inspection.get_inspection_status_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: #666; padding: 20px;">No recent inspections</p>
+                {% endfor %}
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'housekeeping-inspection-list' %}" class="btn btn-info">View All Inspections</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="actions-grid">
+            <a href="{% url 'housekeeping-task-create' %}" class="action-btn">
+                <span class="icon">➕</span>
+                <span class="text">New Task</span>
+            </a>
+            <a href="{% url 'housekeeping-inspection-create' %}" class="action-btn">
+                <span class="icon">🔍</span>
+                <span class="text">New Inspection</span>
+            </a>
+            <a href="{% url 'housekeeping-status-list' %}" class="action-btn">
+                <span class="icon">📊</span>
+                <span class="text">Manage Statuses</span>
+            </a>
+            <a href="{% url 'housekeeping-task-list' %}?status=PENDING" class="action-btn">
+                <span class="icon">📋</span>
+                <span class="text">Pending Tasks</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

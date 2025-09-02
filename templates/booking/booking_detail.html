@@ -9,32 +9,32 @@
         font-weight: bold;
         display: inline-block;
     }
-    
+
     .status-confirmed {
         background: #d1ecf1;
         color: #0c5460;
     }
-    
+
     .status-checked-in {
         background: #d4edda;
         color: #155724;
     }
-    
+
     .status-checked-out {
         background: #f8d7da;
         color: #721c24;
     }
-    
+
     .status-canceled {
         background: #f8d7da;
         color: #721c24;
     }
-    
+
     .status-pending {
         background: #fff3cd;
         color: #856404;
     }
-    
+
     .payment-badge {
         padding: 2px 6px;
         border-radius: 4px;
@@ -42,27 +42,27 @@
         font-weight: bold;
         display: inline-block;
     }
-    
+
     .payment-paid {
         background: #d4edda;
         color: #155724;
     }
-    
+
     .payment-partial {
         background: #fff3cd;
         color: #856404;
     }
-    
+
     .payment-pending {
         background: #f8d7da;
         color: #721c24;
     }
-    
+
     .amount-positive {
         color: #dc3545;
         font-weight: bold;
     }
-    
+
     .amount-zero {
         color: #28a745;
         font-weight: bold;
@@ -72,12 +72,12 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1 style="color: #333; margin: 0;">Booking Details #{{ booking.id }}</h1>
         <div>
-            <a href="{% url 'booking-update' booking.id %}" 
-               style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-right: 10px;">
+            <a href="{% url 'booking-update' booking.id %}"
+                style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-right: 10px;">
                 ✏️ Edit
             </a>
-            <a href="{% url 'booking-list' %}" 
-               style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+            <a href="{% url 'booking-list' %}"
+                style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
                 ← Back to Bookings
             </a>
         </div>
@@ -86,10 +86,11 @@
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
         <!-- Main Booking Information -->
         <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            
+
             <!-- Guest Information -->
             <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                <h3
+                    style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
                     👤 Guest Information
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -108,26 +109,30 @@
 
             <!-- Room Information -->
             <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                <h3
+                    style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
                     🏨 Room Information
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <strong>Room Number:</strong> {{ booking.room.room_number }}<br>
-                        <strong>Room Type:</strong> {% if booking.room.room_type %}{{ booking.room.room_type.name }}{% else %}N/A{% endif %}<br>
+                        <strong>Room Type:</strong> {% if booking.room.room_type %}{{ booking.room.room_type.name }}{%
+                        else %}N/A{% endif %}<br>
                         <strong>Floor:</strong> {{ booking.room.floor }}
                     </div>
                     <div>
                         <strong>Bed Type:</strong> {{ booking.room.get_bed_type_display }}<br>
                         <strong>Max Occupancy:</strong> {{ booking.room.max_occupancy }}<br>
-                        <strong>View:</strong> {% if booking.room.view %}{{ booking.room.get_view_display }}{% else %}N/A{% endif %}
+                        <strong>View:</strong> {% if booking.room.view %}{{ booking.room.get_view_display }}{% else
+                        %}N/A{% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- Stay Details -->
             <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                <h3
+                    style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
                     📅 Stay Details
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
@@ -135,21 +140,24 @@
                         <strong>Check-in Date:</strong><br>
                         {{ booking.check_in_date|date:"F d, Y" }}<br>
                         {% if booking.actual_check_in_time %}
-                            <small style="color: #28a745;">✓ Checked in: {{ booking.actual_check_in_time|date:"M d, Y H:i" }}</small>
+                        <small style="color: #28a745;">✓ Checked in: {{ booking.actual_check_in_time|date:"M d, Y H:i"
+                            }}</small>
                         {% endif %}
                     </div>
                     <div>
                         <strong>Check-out Date:</strong><br>
                         {{ booking.check_out_date|date:"F d, Y" }}<br>
                         {% if booking.actual_check_out_time %}
-                            <small style="color: #28a745;">✓ Checked out: {{ booking.actual_check_out_time|date:"M d, Y H:i" }}</small>
+                        <small style="color: #28a745;">✓ Checked out: {{ booking.actual_check_out_time|date:"M d, Y H:i"
+                            }}</small>
                         {% endif %}
                     </div>
                     <div>
                         <strong>Duration:</strong><br>
                         {{ booking.duration_nights }} night{{ booking.duration_nights|pluralize }}<br>
                         {% if booking.actual_duration_hours %}
-                            <small style="color: #666;">Actual: {{ booking.actual_duration_hours|floatformat:1 }} hours</small>
+                        <small style="color: #666;">Actual: {{ booking.actual_duration_hours|floatformat:1 }}
+                            hours</small>
                         {% endif %}
                     </div>
                 </div>
@@ -168,17 +176,22 @@
 
             <!-- Booking Source & Status -->
             <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                <h3
+                    style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
                     📋 Booking Information
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div>
                         <strong>Booking Source:</strong><br>
                         {{ booking.get_booking_source_display }}
+                        {% if booking.reservation_source %}
+                            <br><small style="color: #666;">via {{ booking.reservation_source.name }}</small>
+                        {% endif %}
                     </div>
                     <div>
                         <strong>Status:</strong><br>
-                        <span class="status-badge {% if booking.status == 'CONFIRMED' %}status-confirmed{% elif booking.status == 'CHECKED_IN' %}status-checked-in{% elif booking.status == 'CHECKED_OUT' %}status-checked-out{% elif booking.status == 'CANCELED' %}status-canceled{% else %}status-pending{% endif %}">
+                        <span
+                            class="status-badge {% if booking.status == 'CONFIRMED' %}status-confirmed{% elif booking.status == 'CHECKED_IN' %}status-checked-in{% elif booking.status == 'CHECKED_OUT' %}status-checked-out{% elif booking.status == 'CANCELED' %}status-canceled{% else %}status-pending{% endif %}">
                             {{ booking.get_status_display }}
                         </span>
                     </div>
@@ -197,7 +210,8 @@
             <!-- Special Requests & Notes -->
             {% if booking.special_requests or booking.booking_notes %}
             <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                <h3
+                    style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
                     📝 Notes & Requests
                 </h3>
                 {% if booking.special_requests %}
@@ -223,11 +237,13 @@
         <!-- Sidebar -->
         <div>
             <!-- Payment Information -->
-            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+            <div
+                style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
                 <h4 style="color: #667eea; margin-bottom: 15px;">💰 Payment Details</h4>
                 <div style="margin-bottom: 10px;">
                     <strong>Total Amount:</strong><br>
-                    <span style="font-size: 1.5rem; color: #28a745; font-weight: bold;">₹{{ booking.total_amount }}</span>
+                    <span style="font-size: 1.5rem; color: #28a745; font-weight: bold;">₹{{ booking.total_amount
+                        }}</span>
                 </div>
                 <div style="margin-bottom: 10px;">
                     <strong>Advance Payment:</strong><br>
@@ -241,7 +257,8 @@
                 </div>
                 <div style="margin-bottom: 10px;">
                     <strong>Payment Status:</strong><br>
-                    <span class="payment-badge {% if booking.payment_status == 'PAID' %}payment-paid{% elif booking.payment_status == 'PARTIAL' %}payment-partial{% else %}payment-pending{% endif %}">
+                    <span
+                        class="payment-badge {% if booking.payment_status == 'PAID' %}payment-paid{% elif booking.payment_status == 'PARTIAL' %}payment-partial{% else %}payment-pending{% endif %}">
                         {{ booking.get_payment_status_display }}
                     </span>
                 </div>
@@ -256,45 +273,46 @@
             <!-- Action Buttons -->
             <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h4 style="color: #667eea; margin-bottom: 15px;">⚡ Quick Actions</h4>
-                
+
                 {% if booking.can_check_in %}
-                <a href="{% url 'booking-check-in' booking.id %}" 
-                   style="display: block; background: #28a745; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;"
-                   onclick="return confirm('Check in {{ booking.guest.full_name }}?')">
+                <a href="{% url 'booking-check-in' booking.id %}"
+                    style="display: block; background: #28a745; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;"
+                    onclick="return confirm('Check in {{ booking.guest.full_name }}?')">
                     🏨 Check In
                 </a>
                 {% endif %}
 
                 {% if booking.can_check_out %}
-                <a href="{% url 'booking-check-out' booking.id %}" 
-                   style="display: block; background: #17a2b8; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;"
-                   onclick="return confirm('Check out {{ booking.guest.full_name }}?')">
+                <a href="{% url 'booking-check-out' booking.id %}"
+                    style="display: block; background: #17a2b8; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;"
+                    onclick="return confirm('Check out {{ booking.guest.full_name }}?')">
                     🚪 Check Out
                 </a>
                 {% endif %}
 
                 {% if booking.can_cancel %}
-                <a href="{% url 'booking-cancel' booking.id %}" 
-                   style="display: block; background: #dc3545; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;"
-                   onclick="return confirm('Cancel this booking?')">
+                <a href="{% url 'booking-cancel' booking.id %}"
+                    style="display: block; background: #dc3545; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;"
+                    onclick="return confirm('Cancel this booking?')">
                     ❌ Cancel Booking
                 </a>
                 {% endif %}
 
-                <a href="{% url 'booking-update' booking.id %}" 
-                   style="display: block; background: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;">
+                <a href="{% url 'booking-update' booking.id %}"
+                    style="display: block; background: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center; margin-bottom: 10px;">
                     ✏️ Edit Booking
                 </a>
 
-                <a href="{% url 'booking-delete' booking.id %}" 
-                   style="display: block; background: #6c757d; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center;"
-                   onclick="return confirm('Delete this booking permanently?')">
+                <a href="{% url 'booking-delete' booking.id %}"
+                    style="display: block; background: #6c757d; color: white; padding: 10px; text-decoration: none; border-radius: 6px; text-align: center;"
+                    onclick="return confirm('Delete this booking permanently?')">
                     🗑️ Delete Booking
                 </a>
             </div>
 
             <!-- Booking Timeline -->
-            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 20px;">
+            <div
+                style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 20px;">
                 <h4 style="color: #667eea; margin-bottom: 15px;">📅 Timeline</h4>
                 <div style="font-size: 12px;">
                     <div style="margin-bottom: 8px;">

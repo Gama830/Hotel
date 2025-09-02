@@ -1,346 +1,204 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
 
 {% block content %}
-<div style="padding: 20px; max-width: 900px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1 style="color: #333; margin: 0;">{{ title }}</h1>
-        <a href="{% url 'booking-list' %}" 
-           style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px;">
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'booking-list' %}" class="btn btn-secondary">
             ← Back to Bookings
         </a>
     </div>
 
-    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div class="form-card">
         <form method="post" id="bookingForm">
             {% csrf_token %}
             
             <!-- Guest and Room Selection -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            <div class="form-section">
+                <h3 class="section-title">
                     👤 Guest & Room Selection
                 </h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.guest.label }}
-                        </label>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.guest.label }}</label>
                         {{ form.guest }}
                         {% if form.guest.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.guest.errors }}
-                            </div>
+                            <div class="form-error">{{ form.guest.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.room.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.room.label }}</label>
                         {{ form.room }}
                         {% if form.room.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.room.errors }}
-                            </div>
+                            <div class="form-error">{{ form.room.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.rate_plan.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.rate_plan.label }}</label>
                         {{ form.rate_plan }}
                         {% if form.rate_plan.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.rate_plan.errors }}
-                            </div>
+                            <div class="form-error">{{ form.rate_plan.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- Stay Details -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            <div class="form-section">
+                <h3 class="section-title">
                     📅 Stay Details
                 </h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.check_in_date.label }}
-                        </label>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.check_in_date.label }}</label>
                         {{ form.check_in_date }}
                         {% if form.check_in_date.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.check_in_date.errors }}
-                            </div>
+                            <div class="form-error">{{ form.check_in_date.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.check_out_date.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.check_out_date.label }}</label>
                         {{ form.check_out_date }}
                         {% if form.check_out_date.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.check_out_date.errors }}
-                            </div>
+                            <div class="form-error">{{ form.check_out_date.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.number_of_adults.label }}
-                        </label>
+                <div class="form-grid-4">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.number_of_adults.label }}</label>
                         {{ form.number_of_adults }}
                         {% if form.number_of_adults.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.number_of_adults.errors }}
-                            </div>
+                            <div class="form-error">{{ form.number_of_adults.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.number_of_children.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.number_of_children.label }}</label>
                         {{ form.number_of_children }}
                         {% if form.number_of_children.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.number_of_children.errors }}
-                            </div>
+                            <div class="form-error">{{ form.number_of_children.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.booking_source.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.booking_source.label }}</label>
                         {{ form.booking_source }}
                         {% if form.booking_source.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.booking_source.errors }}
-                            </div>
+                            <div class="form-error">{{ form.booking_source.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.status.label }}
-                        </label>
+                    <div class="form-group reservation-source-container">
+                        <label class="form-label">{{ form.reservation_source.label }}</label>
+                        {{ form.reservation_source }}
+                        <div id="reservationSourceDropdown"></div>
+                        <input type="hidden" id="id_reservation_source_id" name="reservation_source_id" value="{% if form.instance.reservation_source %}{{ form.instance.reservation_source.id }}{% endif %}">
+                        {% if form.reservation_source.help_text %}
+                            <small class="form-help">Type to search and select from available reservation sources</small>
+                        {% endif %}
+                        {% if form.reservation_source.errors %}
+                            <div class="form-error">{{ form.reservation_source.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.status.label }}</label>
                         {{ form.status }}
                         {% if form.status.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.status.errors }}
-                            </div>
+                            <div class="form-error">{{ form.status.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- Payment Details -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            <div class="form-section">
+                <h3 class="section-title">
                     💰 Payment Details
                 </h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.total_amount.label }}
-                        </label>
+                <div class="form-grid-4">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.total_amount.label }}</label>
                         {{ form.total_amount }}
                         {% if form.total_amount.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.total_amount.errors }}
-                            </div>
+                            <div class="form-error">{{ form.total_amount.errors }}</div>
                         {% endif %}
-                        <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
-                            {{ form.total_amount.help_text }}
-                        </small>
+                        <small class="form-help">{{ form.total_amount.help_text }}</small>
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.advance_payment.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.advance_payment.label }}</label>
                         {{ form.advance_payment }}
                         {% if form.advance_payment.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.advance_payment.errors }}
-                            </div>
+                            <div class="form-error">{{ form.advance_payment.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.payment_status.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.payment_status.label }}</label>
                         {{ form.payment_status }}
                         {% if form.payment_status.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.payment_status.errors }}
-                            </div>
+                            <div class="form-error">{{ form.payment_status.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.payment_method.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.payment_method.label }}</label>
                         {{ form.payment_method }}
                         {% if form.payment_method.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.payment_method.errors }}
-                            </div>
+                            <div class="form-error">{{ form.payment_method.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
             <!-- Additional Information -->
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+            <div class="form-section">
+                <h3 class="section-title">
                     📝 Additional Information
                 </h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.special_requests.label }}
-                        </label>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.special_requests.label }}</label>
                         {{ form.special_requests }}
                         {% if form.special_requests.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.special_requests.errors }}
-                            </div>
+                            <div class="form-error">{{ form.special_requests.errors }}</div>
                         {% endif %}
                     </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                            {{ form.booking_notes.label }}
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.booking_notes.label }}</label>
                         {{ form.booking_notes }}
                         {% if form.booking_notes.errors %}
-                            <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                                {{ form.booking_notes.errors }}
-                            </div>
+                            <div class="form-error">{{ form.booking_notes.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
-                <div style="max-width: 400px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">
-                        {{ form.confirmation_number.label }}
-                    </label>
+                <div class="form-group" style="max-width: 400px;">
+                    <label class="form-label">{{ form.confirmation_number.label }}</label>
                     {{ form.confirmation_number }}
                     {% if form.confirmation_number.errors %}
-                        <div style="color: #dc3545; font-size: 14px; margin-top: 5px;">
-                            {{ form.confirmation_number.errors }}
-                        </div>
+                        <div class="form-error">{{ form.confirmation_number.errors }}</div>
                     {% endif %}
                 </div>
             </div>
 
             <!-- Form Errors -->
             {% if form.non_field_errors %}
-                <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                <div class="alert alert-error">
                     {{ form.non_field_errors }}
                 </div>
             {% endif %}
 
             <!-- Submit Button -->
-            <div style="text-align: center; margin-top: 30px;">
-                <button type="submit" 
-                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
                     {{ submit_text }}
                 </button>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .form-control {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 16px;
-        transition: border-color 0.3s ease;
-    }
-    
-    .form-control:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-    }
-    
-    .form-control[readonly] {
-        background-color: #f8f9fa;
-        color: #6c757d;
-    }
-    
-    select.form-control {
-        cursor: pointer;
-    }
-</style>
-
-<script>
-    // Auto-calculate total amount when dates or room changes
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkInDate = document.querySelector('#id_check_in_date');
-        const checkOutDate = document.querySelector('#id_check_out_date');
-        const roomSelect = document.querySelector('#id_room');
-        const ratePlanSelect = document.querySelector('#id_rate_plan');
-        const totalAmountField = document.querySelector('#id_total_amount');
-        const adultsField = document.querySelector('#id_number_of_adults');
-        const childrenField = document.querySelector('#id_number_of_children');
-        
-        function calculateTotal() {
-            if (checkInDate.value && checkOutDate.value && roomSelect.value) {
-                const checkIn = new Date(checkInDate.value);
-                const checkOut = new Date(checkOutDate.value);
-                const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-                
-                if (nights > 0) {
-                    // Make AJAX call to get calculated amount
-                    const formData = new FormData();
-                    formData.append('check_in_date', checkInDate.value);
-                    formData.append('check_out_date', checkOutDate.value);
-                    formData.append('room', roomSelect.value);
-                    formData.append('rate_plan', ratePlanSelect.value || '');
-                    formData.append('number_of_adults', adultsField.value || '1');
-                    formData.append('number_of_children', childrenField.value || '0');
-                    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-                    
-                    fetch('/bookings/calculate-amount/', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.total_amount) {
-                            totalAmountField.value = data.total_amount;
-                            totalAmountField.style.backgroundColor = '#d4edda';
-                            
-                            // Show calculation details
-                            const helpText = totalAmountField.parentNode.querySelector('small');
-                            if (helpText) {
-                                helpText.textContent = `${nights} nights × ₹${data.rate_per_night} = ₹${data.total_amount}`;
-                                helpText.style.color = '#28a745';
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error calculating amount:', error);
-                        totalAmountField.style.backgroundColor = '#fff3cd';
-                        totalAmountField.placeholder = 'Will be calculated on save';
-                    });
-                }
-            }
-        }
-        
-        // Add event listeners
-        [checkInDate, checkOutDate, roomSelect, ratePlanSelect, adultsField, childrenField].forEach(field => {
-            if (field) {
-                field.addEventListener('change', calculateTotal);
-            }
-        });
-        
-        // Calculate on page load if editing
-        if (checkInDate.value && checkOutDate.value && roomSelect.value) {
-            calculateTotal();
-        }
-    });
-</script>
+{% block extra_js %}
+<script src="{% static 'js/booking.js' %}"></script>
 {% endblock %}

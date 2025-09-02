@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'housekeeping-task-list' %}" class="btn btn-secondary">
+            ← Back to Tasks
+        </a>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Task Information -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📋 Task Information
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.room.label }}</label>
+                        {{ form.room }}
+                        {% if form.room.errors %}
+                            <div class="form-error">{{ form.room.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.status.label }}</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="form-error">{{ form.status.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.task_type.label }}</label>
+                        {{ form.task_type }}
+                        {% if form.task_type.errors %}
+                            <div class="form-error">{{ form.task_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.priority.label }}</label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                            <div class="form-error">{{ form.priority.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.task_status.label }}</label>
+                        {{ form.task_status }}
+                        {% if form.task_status.errors %}
+                            <div class="form-error">{{ form.task_status.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.assigned_to.label }}</label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                            <div class="form-error">{{ form.assigned_to.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduling -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📅 Scheduling
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.scheduled_date.label }}</label>
+                        {{ form.scheduled_date }}
+                        {% if form.scheduled_date.errors %}
+                            <div class="form-error">{{ form.scheduled_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.scheduled_time.label }}</label>
+                        {{ form.scheduled_time }}
+                        {% if form.scheduled_time.errors %}
+                            <div class="form-error">{{ form.scheduled_time.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.estimated_duration.label }}</label>
+                        {{ form.estimated_duration }}
+                        {% if form.estimated_duration.errors %}
+                            <div class="form-error">{{ form.estimated_duration.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Duration in minutes</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📝 Details
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="form-error">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="form-error">{{ form.notes.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

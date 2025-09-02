@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'housekeeping-inspection-list' %}" class="btn btn-secondary">
+            ← Back to Inspections
+        </a>
+    </div>
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Inspection Information -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    🔍 Inspection Information
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.room.label }}</label>
+                        {{ form.room }}
+                        {% if form.room.errors %}
+                            <div class="form-error">{{ form.room.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.task.label }}</label>
+                        {{ form.task }}
+                        {% if form.task.errors %}
+                            <div class="form-error">{{ form.task.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Optional - link to related task</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.inspection_status.label }}</label>
+                        {{ form.inspection_status }}
+                        {% if form.inspection_status.errors %}
+                            <div class="form-error">{{ form.inspection_status.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inspector & Scoring -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    👤 Inspector & Scoring
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.inspector_name.label }}</label>
+                        {{ form.inspector_name }}
+                        {% if form.inspector_name.errors %}
+                            <div class="form-error">{{ form.inspector_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.cleanliness_score.label }}</label>
+                        {{ form.cleanliness_score }}
+                        {% if form.cleanliness_score.errors %}
+                            <div class="form-error">{{ form.cleanliness_score.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Rate cleanliness from 1 (poor) to 10 (excellent)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📝 Details
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.issues_found.label }}</label>
+                        {{ form.issues_found }}
+                        {% if form.issues_found.errors %}
+                            <div class="form-error">{{ form.issues_found.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.corrective_actions.label }}</label>
+                        {{ form.corrective_actions }}
+                        {% if form.corrective_actions.errors %}
+                            <div class="form-error">{{ form.corrective_actions.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">{{ form.inspection_notes.label }}</label>
+                    {{ form.inspection_notes }}
+                    {% if form.inspection_notes.errors %}
+                        <div class="form-error">{{ form.inspection_notes.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Follow-up -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    🔄 Follow-up
+                </h3>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            {{ form.follow_up_required }}
+                            <label for="{{ form.follow_up_required.id_for_label }}" class="form-label" style="margin: 0;">
+                                {{ form.follow_up_required.label }}
+                            </label>
+                        </div>
+                        {% if form.follow_up_required.errors %}
+                            <div class="form-error">{{ form.follow_up_required.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Check if a follow-up inspection is needed</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.follow_up_date.label }}</label>
+                        {{ form.follow_up_date }}
+                        {% if form.follow_up_date.errors %}
+                            <div class="form-error">{{ form.follow_up_date.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Required if follow-up is needed</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

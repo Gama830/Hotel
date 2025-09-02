@@ -1,47 +1,48 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
 
 {% block content %}
-<div style="padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1 style="color: #333; margin: 0;">Booking Management</h1>
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Booking Management</h1>
         <div style="display: flex; gap: 10px;">
-            <a href="{% url 'room-availability-search' %}" 
-               style="background: #17a2b8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+            <a href="{% url 'room-availability-search' %}" class="btn btn-info">
                 🔍 Search Rooms
             </a>
-            <a href="{% url 'booking-create' %}" 
-               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+            <a href="{% url 'booking-create' %}" class="btn btn-primary">
                 ➕ New Booking
             </a>
         </div>
     </div>
 
     <!-- Search and Filter Bar -->
-    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
-        <form method="GET" style="display: flex; gap: 15px; align-items: end; flex-wrap: wrap;">
-            <div style="flex: 2; min-width: 200px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Search</label>
+    <div class="search-form">
+        <form method="GET" class="search-grid">
+            <div>
+                <label class="form-label">Search</label>
                 <input type="text" name="search" value="{{ search_query }}" 
                        placeholder="Search by guest name, email, room number, or booking ID..."
-                       style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                       class="search-input">
             </div>
-            <div style="flex: 1; min-width: 150px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Status</label>
-                <select name="status" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+            <div>
+                <label class="form-label">Status</label>
+                <select name="status" class="search-select">
                     <option value="">All Statuses</option>
                     {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" 
-                        style="background: #667eea; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            <div>
+                <button type="submit" class="btn btn-primary">
                     🔍 Filter
                 </button>
                 {% if search_query or status_filter %}
-                <a href="{% url 'booking-list' %}" 
-                   style="background: #6c757d; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                <a href="{% url 'booking-list' %}" class="btn btn-secondary">
                     Clear
                 </a>
                 {% endif %}
@@ -61,56 +62,61 @@
     </div>
 
     <!-- Bookings Table -->
-    <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div class="card">
+        <table class="table">
+            <thead>
                 <tr>
-                    <th style="padding: 15px; text-align: left;">Booking ID</th>
-                    <th style="padding: 15px; text-align: left;">Guest</th>
-                    <th style="padding: 15px; text-align: left;">Room</th>
-                    <th style="padding: 15px; text-align: left;">Check-in</th>
-                    <th style="padding: 15px; text-align: left;">Check-out</th>
-                    <th style="padding: 15px; text-align: left;">Guests</th>
-                    <th style="padding: 15px; text-align: left;">Status</th>
-                    <th style="padding: 15px; text-align: left;">Amount</th>
-                    <th style="padding: 15px; text-align: center;">Actions</th>
+                    <th>Booking ID</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Guests</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th style="text-align: center;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for booking in page_obj %}
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 15px; font-weight: bold;">#{{ booking.id }}</td>
-                    <td style="padding: 15px;">{{ booking.guest.full_name }}</td>
-                    <td style="padding: 15px;">
+                <tr>
+                    <td><strong>#{{ booking.id }}</strong></td>
+                    <td>{{ booking.guest.full_name }}</td>
+                    <td>
                         Room {{ booking.room.room_number }}
                         <br><small style="color: #666;">{{ booking.room.room_type.name }}</small>
                     </td>
-                    <td style="padding: 15px;">{{ booking.check_in_date|date:"M d, Y" }}</td>
-                    <td style="padding: 15px;">{{ booking.check_out_date|date:"M d, Y" }}</td>
-                    <td style="padding: 15px;">
+                    <td>{{ booking.check_in_date|date:"M d, Y" }}</td>
+                    <td>{{ booking.check_out_date|date:"M d, Y" }}</td>
+                    <td>
                         {{ booking.number_of_adults }}A
                         {% if booking.number_of_children %}, {{ booking.number_of_children }}C{% endif %}
                     </td>
-                    <td style="padding: 15px;">
-                        <span style="background: {% if booking.status == 'CONFIRMED' %}#28a745{% elif booking.status == 'CHECKED_IN' %}#17a2b8{% elif booking.status == 'CHECKED_OUT' %}#6c757d{% elif booking.status == 'CANCELED' %}#dc3545{% else %}#ffc107{% endif %}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                    <td>
+                        <span style="font-size: 12px; color: #666;">{{ booking.get_booking_source_display }}</span>
+                        {% if booking.reservation_source %}
+                            <br><small style="color: #007bff;">{{ booking.reservation_source.name }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="status-badge {% if booking.status == 'CONFIRMED' %}status-confirmed{% elif booking.status == 'CHECKED_IN' %}status-checked-in{% elif booking.status == 'CHECKED_OUT' %}status-checked-out{% elif booking.status == 'CANCELED' %}status-canceled{% else %}status-pending{% endif %}">
                             {{ booking.get_status_display }}
                         </span>
                     </td>
-                    <td style="padding: 15px; font-weight: bold;">₹{{ booking.total_amount }}</td>
-                    <td style="padding: 15px; text-align: center;">
-                        <a href="{% url 'booking-detail' booking.id %}" 
-                           style="background: #28a745; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                    <td><strong>₹{{ booking.total_amount }}</strong></td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'booking-detail' booking.id %}" class="btn btn-success btn-sm">
                             👁️ View
                         </a>
-                        <a href="{% url 'booking-update' booking.id %}" 
-                           style="background: #ffc107; color: black; padding: 6px 12px; text-decoration: none; border-radius: 4px; margin: 2px; font-size: 12px;">
+                        <a href="{% url 'booking-update' booking.id %}" class="btn btn-warning btn-sm">
                             ✏️ Edit
                         </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="9" style="padding: 40px; text-align: center; color: #666;">
+                    <td colspan="10" class="empty-state">
                         {% if search_query or status_filter %}
                             No bookings found matching your criteria.
                         {% else %}
@@ -125,24 +131,24 @@
 
     <!-- Pagination -->
     {% if page_obj.has_other_pages %}
-    <div style="margin-top: 20px; text-align: center;">
-        <div style="display: inline-flex; gap: 5px;">
+    <div class="pagination">
+        <div class="pagination-links">
             {% if page_obj.has_previous %}
                 <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
-                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">First</a>
+                   class="pagination-link">First</a>
                 <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
-                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Previous</a>
+                   class="pagination-link">Previous</a>
             {% endif %}
             
-            <span style="padding: 8px 12px; background: #f8f9fa; border-radius: 4px;">
+            <span class="pagination-current">
                 Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
             </span>
             
             {% if page_obj.has_next %}
                 <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
-                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Next</a>
+                   class="pagination-link">Next</a>
                 <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" 
-                   style="padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">Last</a>
+                   class="pagination-link">Last</a>
             {% endif %}
         </div>
     </div>

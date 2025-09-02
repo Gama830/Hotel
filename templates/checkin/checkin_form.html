@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="booking-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ title }}</h1>
+        <a href="{% url 'checkin-list' %}" class="btn btn-secondary">
+            ← Back to Check-Ins
+        </a>
+    </div>
+
+    {% if booking_instance %}
+    <div class="card" style="margin-bottom: 30px;">
+        <div class="card-body">
+            <h3 style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+                📋 Booking Information
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Booking ID:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">{{ booking_instance.booking_id }}</p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Guest:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">{{ booking_instance.guest.full_name }}</p>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; color: #333; margin-bottom: 5px;">Room:</label>
+                    <p style="margin: 0; padding: 10px; background: #f8f9fa; border-radius: 4px;">{{ booking_instance.room.room_number }} ({{ booking_instance.room.room_type }})</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Check-In Information -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    🏨 Check-In Information
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.check_in_id.label }}</label>
+                        {{ form.check_in_id }}
+                        {% if form.check_in_id.errors %}
+                            <div class="form-error">{{ form.check_in_id.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Auto-generated if left blank</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.booking.label }}</label>
+                        {{ form.booking }}
+                        {% if form.booking.errors %}
+                            <div class="form-error">{{ form.booking.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Optional for walk-in guests</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.guest.label }}</label>
+                        {{ form.guest }}
+                        {% if form.guest.errors %}
+                            <div class="form-error">{{ form.guest.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room & Timing -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    🏠 Room & Timing
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.room_number.label }}</label>
+                        {{ form.room_number }}
+                        {% if form.room_number.errors %}
+                            <div class="form-error">{{ form.room_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.actual_check_in_date_time.label }}</label>
+                        {{ form.actual_check_in_date_time }}
+                        {% if form.actual_check_in_date_time.errors %}
+                            <div class="form-error">{{ form.actual_check_in_date_time.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.expected_check_out_date.label }}</label>
+                        {{ form.expected_check_out_date }}
+                        {% if form.expected_check_out_date.errors %}
+                            <div class="form-error">{{ form.expected_check_out_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.number_of_guests.label }}</label>
+                        {{ form.number_of_guests }}
+                        {% if form.number_of_guests.errors %}
+                            <div class="form-error">{{ form.number_of_guests.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.assigned_staff.label }}</label>
+                        {{ form.assigned_staff }}
+                        {% if form.assigned_staff.errors %}
+                            <div class="form-error">{{ form.assigned_staff.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification & Payment -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    💳 Verification & Payment
+                </h3>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            {{ form.id_proof_verified }}
+                            <label for="{{ form.id_proof_verified.id_for_label }}" class="form-label" style="margin: 0;">
+                                {{ form.id_proof_verified.label }}
+                            </label>
+                        </div>
+                        {% if form.id_proof_verified.errors %}
+                            <div class="form-error">{{ form.id_proof_verified.errors }}</div>
+                        {% endif %}
+                        <small class="form-help">Check if ID has been verified</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.payment_status.label }}</label>
+                        {{ form.payment_status }}
+                        {% if form.payment_status.errors %}
+                            <div class="form-error">{{ form.payment_status.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.advance_payment.label }}</label>
+                        {{ form.advance_payment }}
+                        {% if form.advance_payment.errors %}
+                            <div class="form-error">{{ form.advance_payment.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">{{ form.total_amount.label }}</label>
+                    {{ form.total_amount }}
+                    {% if form.total_amount.errors %}
+                        <div class="form-error">{{ form.total_amount.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Additional Details -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    📝 Additional Details
+                </h3>
+                <div class="form-group">
+                    <label class="form-label">{{ form.remarks_notes.label }}</label>
+                    {{ form.remarks_notes }}
+                    {% if form.remarks_notes.errors %}
+                        <div class="form-error">{{ form.remarks_notes.errors }}</div>
+                    {% endif %}
+                    <small class="form-help">Special requests, preferences, or important notes</small>
+                </div>
+            </div>
+
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <div class="form-submit">
+                <button type="submit" class="btn-submit">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current Indian time as default for check-in datetime
+    const datetimeInput = document.querySelector('input[name="actual_check_in_date_time"]');
+    if (datetimeInput && !datetimeInput.value) {
+        const now = new Date();
+        // Convert to Indian timezone (UTC+5:30)
+        const indianTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        const year = indianTime.getUTCFullYear();
+        const month = String(indianTime.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(indianTime.getUTCDate()).padStart(2, '0');
+        const hours = String(indianTime.getUTCHours()).padStart(2, '0');
+        const minutes = String(indianTime.getUTCMinutes()).padStart(2, '0');
+        
+        datetimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    
+    // Add current time display
+    const datetimeGroup = datetimeInput?.closest('.form-group');
+    if (datetimeGroup) {
+        const currentTimeDiv = document.createElement('div');
+        currentTimeDiv.style.cssText = 'margin-top: 5px; font-size: 12px; color: #666;';
+        
+        function updateCurrentTime() {
+            const now = new Date();
+            const indianTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+            const timeString = indianTime.toLocaleString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }) + ' IST';
+            currentTimeDiv.innerHTML = `🕒 Current time: ${timeString}`;
+        }
+        
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+        datetimeGroup.appendChild(currentTimeDiv);
+    }
+});
+</script>
+{% endblock %}
